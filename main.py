@@ -7,6 +7,7 @@ import multiprocessing as mp
 import functools
 import copy
 import random
+import time
 
 PIECE_VALUES = {
     'q': 27,
@@ -46,7 +47,7 @@ def count_pieces(board):
                     white_pieces += 1
     return black_pieces, white_pieces
 
-def board_value(board, player):
+def board_value(board):
     # assign a value to the board (evaluation function)
     total_value = 0
     black_pieces = 0
@@ -146,13 +147,13 @@ def board_value(board, player):
                             total_value += 9
 
     # this function will be called for both players so we need to adjust its output accordingly
-    return total_value if player else -total_value
+    return total_value
 
 def get_move_score(board, depth, player: bool):
     # recursion base case
     if (depth == 0):
         # evaluate this board
-        value = board_value(board, player)
+        value = board_value(board)
         return value, None
 
     best_move = None
@@ -212,7 +213,6 @@ def get_move_score(board, depth, player: bool):
 def get_main_move_score(board, move, depth, player: bool):
     # to ensure that we make changes to a different game object
     cloned_board = copy.deepcopy(board)
-
     cloned_board.push(move) # Make the move
 
     if cloned_board.can_claim_threefold_repetition():
@@ -233,8 +233,7 @@ def hello_world():
     
     nprocs = mp.cpu_count()
     pool = mp.Pool(processes=nprocs)
-    print(nprocs, 'start')
-    print([move for move in board.legal_moves])
+    print(nprocs, '< CPUS used | start')
     arguments = [(board, move, 2, True) for move in board.legal_moves]
     result = pool.starmap(get_main_move_score, arguments)
     result = sorted(result, key = lambda a: a[0])
