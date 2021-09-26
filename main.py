@@ -7,6 +7,7 @@ import multiprocessing as mp
 import functools
 import copy
 import random
+import time
 
 PIECE_VALUES = {
     'q': 27,
@@ -46,11 +47,9 @@ def count_pieces(board):
                     white_pieces += 1
     return black_pieces, white_pieces
 
-def board_value(board, player):
+def board_value(board):
     # assign a value to the board (evaluation function)
     total_value = 0
-    black_pieces = 0
-    white_pieces = 0
 
     black_pieces, white_pieces = count_pieces(board)
     
@@ -69,9 +68,9 @@ def board_value(board, player):
                 #  When the black is evaluating it will try to find the highest possible totalValue
                 #  in this case meaning that it has more black pieces in the table and less white pieces
                 if piece_color == chess.BLACK:
-                    total_value += 1
+                    total_value += PIECE_VALUES[piece.symbol().lower()]
                 else:
-                    total_value -= 1
+                    total_value -= PIECE_VALUES[piece.symbol().lower()]
             
             if piece.symbol().lower() == 'p':
                 pawn_in_col = 0
@@ -145,19 +144,16 @@ def board_value(board, player):
                         else:
                             total_value += 9
 
-    # this function will be called for both players so we need to adjust its output accordingly
-    return total_value if player else -total_value
+    return total_value
 
 def get_move_score(board, depth, player: bool):
     # recursion base case
     if (depth == 0):
         # evaluate this board
-        value = board_value(board, player)
+        value = board_value(board)
         return value, None
 
     best_move = None
-    # to ensure that we make changes to a different game object
-    cloned_board = copy.deepcopy(board)
 
     # initializing bestMoveValue found depending on the player
     if player:
@@ -168,13 +164,13 @@ def get_move_score(board, depth, player: bool):
     alpha = float("-inf")
     beta = float("inf")
     for move in board.legal_moves:
-        cloned_board.push(move) # Make the move
+        board.push(move) # Make the move
 
-        if cloned_board.can_claim_threefold_repetition():
-            cloned_board.pop() # unmake the last move
+        if board.can_claim_threefold_repetition():
+            board.pop() # unmake the last move
             continue
 
-        value = get_move_score(cloned_board, depth-1, not player)[0]
+        value = get_move_score(board, depth-1, not player)[0]
 
         if player:
             # Look for moves that maximize position, (AI moves)
@@ -193,36 +189,32 @@ def get_move_score(board, depth, player: bool):
             # setting beta variable to do prunning
             beta = min(beta, value)
 
-        cloned_board.pop() # undo fake move
+        board.pop() # undo fake move
 
         # alpha beta prunning when we already found a solution that is at least as good as the current one
         # those branches won't be able to influence the final decision so we don't need to waste time analyzing them
         if beta <= alpha:
             break
 
+    # if it returned no best move, we make a random one
     if not best_move:
         if board.legal_moves:
             best_move = random.choice([move for move in board.legal_moves])
         else:
             best_move = (None, None)
 
-    # if it returned no best move, we make a random one
     return [best_move_value, best_move]
 
 def get_main_move_score(board, move, depth, player: bool):
     # to ensure that we make changes to a different game object
-    cloned_board = copy.deepcopy(board)
-
-    cloned_board.push(move) # Make the move
-
-    if cloned_board.can_claim_threefold_repetition():
-        cloned_board.pop() # unmake the last move
+    board.push(move)
+    if board.can_claim_threefold_repetition():
+        board.pop() # unmake the last move
         return 0, None
 
-    value, best_move = get_move_score(cloned_board, depth-1, not player)
+    value, _ = get_move_score(board, depth-1, not player)
 
-    cloned_board.pop() # unmake the last move
-
+    board.pop() 
     return value, move
 
 @app.route('/')
@@ -234,11 +226,14 @@ def hello_world():
     nprocs = mp.cpu_count()
     pool = mp.Pool(processes=nprocs)
     print(nprocs, 'start')
-    print([move for move in board.legal_moves])
+    st = time.time()
     arguments = [(board, move, 2, True) for move in board.legal_moves]
     result = pool.starmap(get_main_move_score, arguments)
+    end = time.time()
+    print(end-st)
+
     result = sorted(result, key = lambda a: a[0])
-    print(result)
+
     return {
         'statusCode': 200,
         'body': {'move': result[-1][1].uci()},
@@ -249,8 +244,5 @@ def hello_world():
         },
     }
 
-    return "Hello World!"
-
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)
-
