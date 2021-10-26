@@ -8,7 +8,6 @@ import functools
 import copy
 import random
 import time
-from typing import Tuple, Dict, Union, Any
 from collections import defaultdict
 
 # Evaluation function constants
@@ -34,14 +33,14 @@ CORNERS = [(0, 0), (0, 1), (1, 0), (1, 1), (0, 7), (0, 6), (1, 7), (1, 6),
 
 # Search constants
 START_LAYER = 2
-DEPTHS = 3
+DEPTHS = 0
 
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADER'] = 'Content-Type'
 
 
-def count_pieces(board: chess.Board) -> Tuple[int]:
+def count_pieces(board):
 	"""
 	Receives a board state and counts the number of pieces for each player in it.
 
@@ -67,7 +66,7 @@ def count_pieces(board: chess.Board) -> Tuple[int]:
 	return black_pieces, white_pieces
 
 
-def board_value(board: chess.Board) -> int:
+def board_value(board):
 	"""
 	This functions receives a board and assigns a value to it, it acts as
 	an evaluation function of the current state for this game.
@@ -179,7 +178,7 @@ def board_value(board: chess.Board) -> int:
 	return round(total_value, 2)
 
 
-def get_move_score(board: chess.Board, depth: int, player: bool, alpha: float = float("-inf"), beta: float = float("inf")) -> Tuple[Union[int, chess.Move]]:
+def get_move_score(board, depth, player, alpha = float("-inf"), beta = float("inf")):
 	"""
 	This functions receives a board, depth and a player; and it returns
 	the best move for the current board based on how many depths we're looking ahead
@@ -252,21 +251,21 @@ def get_move_score(board: chess.Board, depth: int, player: bool, alpha: float = 
 	return best_move_value, best_move
 
 
-def get_black_pieces_best_move(board: chess.Board, move, depth: int) -> Tuple[Union[int, chess.Move]]:
-	board.push(move)
-	if board.can_claim_threefold_repetition():
-		board.pop()  # unmake the last move
-		return 0, None
+def get_black_pieces_best_move(args):
+    board, move, depth = args
+    board.push(move)
+    if board.can_claim_threefold_repetition():
+        board.pop()  # unmake the last move
+        return 0, None
+    value, _ = get_move_score(board, depth-1, True)
 
-	value, _ = get_move_score(board, depth-1, True)
-
-	board.pop()
-	return board, value, move
+    board.pop()
+    return board, value, move
 
 
 @app.route('/')
 @cross_origin()
-def hello_world() -> Dict[str, Any]:
+def hello_world():
 	fen = request.args.get('fen')
 	START_LAYER = 2
 
@@ -308,7 +307,7 @@ def hello_world() -> Dict[str, Any]:
 
 	arguments = [(board, move, DEPTHS)
 				 for board, move in start_layer_moves]
-	layer_2_result = pool.starmap(get_black_pieces_best_move, arguments)
+	layer_2_result = pool.map(get_black_pieces_best_move, arguments)
 
 	layer_1_boards_with_moves = defaultdict(list)
 	for board, value, move in layer_2_result:
@@ -321,7 +320,7 @@ def hello_world() -> Dict[str, Any]:
 	# Then we get the best move for the first layer by maximizing the values
 	layer_1_nodes = []
 	for board in layer_1_boards_with_moves:
-		lowest_node = (board, *layer_1_boards_with_moves[board][0])
+		lowest_node = (board, layer_1_boards_with_moves[board][0][0], layer_1_boards_with_moves[board][0][1])
 		for layer_1_value, move in layer_1_boards_with_moves[board][1:]:
 			if layer_1_value < lowest_node[1]:
 				lowest_node = (board, layer_1_value, move)
