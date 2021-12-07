@@ -6,4 +6,9 @@
 `pypy main2.py`
 ## Running Tests
 
-`python -m unittest`
+### Unit Tests
+
+`python -m unittest test.py`
+### Bratko-Kopec Test
+
+`python test_bratko_kopec.py`
