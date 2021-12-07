@@ -8,16 +8,18 @@ import functools
 import copy
 import random
 import time
+import psqt
 from typing import Tuple, Dict, Union, Any
-from collections import defaultdict
+from collections import defaultdict, deque
 
 # Evaluation function constants
+MOVES = []
 PIECE_VALUES = {
-	'q': 27,
 	'p': 2,
 	'n': 8,
 	'b': 13,
 	'r': 14,
+	'q': 27,
 	'k': 1000,
 }
 CENTER_ROWS = [3, 4]
@@ -34,7 +36,9 @@ CORNERS = [(0, 0), (0, 1), (1, 0), (1, 1), (0, 7), (0, 6), (1, 7), (1, 6),
 
 # Search constants
 START_LAYER = 2
-DEPTHS = 3
+DEPTHS = 2
+R = 2
+COUNTER = 0
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -67,10 +71,11 @@ def count_pieces(board: chess.Board) -> Tuple[int]:
 	return black_pieces, white_pieces
 
 
-def board_value(board: chess.Board) -> int:
+def board_value(board: chess.Board) -> float:
 	"""
 	This functions receives a board and assigns a value to it, it acts as
-	an evaluation function of the current state for this game.
+	an evaluation function of the current state for this game. It returns
+
 
 	Arguments:
 		- board: current board state.
@@ -113,7 +118,7 @@ def board_value(board: chess.Board) -> int:
 						piece_helper = board.piece_at(square_helper)
 						if piece_helper and piece_helper.symbol().lower() == 'p' and piece_helper.color == piece_color:
 							pawn_in_col += 1
-					
+
 					if pawn_in_col >= 2:
 						if piece_color == chess.BLACK:
 							total_value -= 0.5*pawn_in_col
@@ -137,7 +142,7 @@ def board_value(board: chess.Board) -> int:
 							total_value -= 3
 
 					# points for moving bishop early in the game
-					# False	
+					# False
 					if piece.symbol().lower() == 'b' and (row not in BISHOP_ROW and (col != LEFT_BISHOP_ROW or col != RIGHT_BISHOP_ROW)):
 						if piece_color == chess.BLACK:
 							total_value += 3
@@ -179,13 +184,29 @@ def board_value(board: chess.Board) -> int:
 	return round(total_value, 2)
 
 
-def get_move_score(board: chess.Board, depth: int, player: bool, alpha: float = float("-inf"), beta: float = float("inf")) -> Tuple[Union[int, chess.Move]]:
+def get_move_score(
+	board: chess.Board,
+	depth: int,
+	player: bool,
+	null_move: bool,
+	alpha: float = float("-inf"),
+	beta: float = float("inf")) -> Tuple[Union[int, chess.Move]]:
 	"""
 	This functions receives a board, depth and a player; and it returns
 	the best move for the current board based on how many depths we're looking ahead
-	and which player is playing.
+	and which player is playing. Alpha and beta are used to prune the search tree.
+	Alpha represents the best score for the maximizing player (best choice (highest value)  we've found
+	along the path for max) and beta represents the best score for the minimizing player
+	(best choice (lowest value) we've found along the path for min). When Alpha is higher
+	than or equal to Beta, we can prune the search  tree; because it means that the
+	maximizing player won't find a better move in this branch.
 
-	Arguments: 
+	OBS:
+		- We only need to evaluate the value for leaf nodes because they are our final states
+		of the board and therefore we need to use their values to base our decision of what is
+		the best move.
+
+	Arguments:
 		- board: chess board state
 		- depth: how many depths we want to calculate for this board
 		- player: player that is currently moving pieces. True for black, False for white.
@@ -193,13 +214,19 @@ def get_move_score(board: chess.Board, depth: int, player: bool, alpha: float = 
 	Returns:
 		- best_move_value, best_move: returns best move that it found and its value.
 	"""
-
+	global COUNTER
+	COUNTER += 1
 	# recursion base case
 	if depth <= 0:
-		# evaluate this board without any moves
+		# evaluate current board
 		value = board_value(board)
-		return value, None
+		return value, None, alpha
 
+	# null move heuristic
+	# alpha = get_move_score(board, depth-1 - R, not player, beta, beta-1)[2]
+	# if alpha >= beta:
+	# 	value = board_value(board)
+	# 	return value, None, alpha
 
 	best_move = None
 
@@ -208,15 +235,20 @@ def get_move_score(board: chess.Board, depth: int, player: bool, alpha: float = 
 		best_move_value = float("-inf")
 	else:
 		best_move_value = float("inf")
-	
+
 	for move in board.legal_moves:
+		# alpha beta prunning when we already found a solution that is at least as good as the current one
+		# those branches won't be able to influence the final decision so we don't need to waste time analyzing them
+		if alpha >= beta:
+			break
+
 		board.push(move)  # Make the move
 
 		if board.can_claim_threefold_repetition():
 			board.pop()  # unmake the last move
 			continue
 
-		value, _ = get_move_score(board, depth-1, not player)
+		value, _, _ = get_move_score(board, depth-1, not player, True, alpha, beta)
 
 		if player:
 			# Look for moves that maximize position, (AI moves)
@@ -224,8 +256,8 @@ def get_move_score(board: chess.Board, depth: int, player: bool, alpha: float = 
 				# if it was the highest evaluation function move so far, we make this move
 				best_move_value = value
 				best_move = move
-			# setting alpha variable to do prunning later on
-			alpha = max(alpha,  value)
+			# setting alpha variable to do prunning
+			alpha = max(alpha, value)
 		else:
 			# Look for best moves that minimize position, (Human moves)
 			if value < best_move_value:
@@ -235,12 +267,8 @@ def get_move_score(board: chess.Board, depth: int, player: bool, alpha: float = 
 			# setting beta variable to do prunning
 			beta = min(beta, value)
 
-		board.pop()  # undo fake move
-
-		# alpha beta prunning when we already found a solution that is at least as good as the current one
-		# those branches won't be able to influence the final decision so we don't need to waste time analyzing them
-		if beta <= alpha:
-			break
+		# take move back
+		board.pop()
 
 	# if it returned no best move, we make a random one
 	if not best_move:
@@ -249,7 +277,153 @@ def get_move_score(board: chess.Board, depth: int, player: bool, alpha: float = 
 		else:
 			best_move = (None, None)
 
-	return best_move_value, best_move
+	return best_move_value, best_move, alpha
+
+
+def quiescence_search(board: chess.Board, player: int, alpha: float, beta: float):
+	stand_pat = player * board_value(board)
+	if(stand_pat >= beta):
+		return beta
+
+	if(alpha < stand_pat):
+		alpha = stand_pat
+
+	for move in board.legal_moves:
+		if board.is_capture(move):
+			board.push(move)
+			score = -quiescence_search(board, -player, -beta, -alpha)
+			board.pop()
+
+			if(score >= beta):
+				return beta
+			
+			if(score > alpha):
+				alpha = score  
+	return alpha
+
+
+def organize_moves(board: chess.Board):
+	"""
+	This function receives a board and it returns a list of all the
+	possible moves for the current player, sorted by importance.
+	Right now we are only sending the moves that are capturing pieces
+	at the starting positions in our array (so we can prune more and earlier).
+
+	Arguments:
+		- board: chess board state
+
+	Returns:
+		- legal_moves: list of all the possible moves for the current player.
+	"""
+	org_moves = deque()
+	for move in board.legal_moves:
+		if board.is_capture(move):
+			org_moves.appendleft(move)
+		else:
+			org_moves.append(move)
+	return list(org_moves)
+
+
+def negamax(
+	board: chess.Board, 
+	depth: int, 
+	player: int, 
+	null_move: bool,
+	alpha: float = float("-inf"), 
+	beta: float = float("inf")) -> Tuple[Union[int, chess.Move]]:
+	"""
+	This functions receives a board, depth and a player; and it returns
+	the best move for the current board based on how many depths we're looking ahead
+	and which player is playing. Alpha and beta are used to prune the search tree.
+	Alpha represents the best score for the maximizing player (best choice (highest value)  we've found 
+	along the path for max) and beta represents the best score for the minimizing player
+	(best choice (lowest value) we've found along the path for min). When Alpha is higher 
+	than or equal to Beta, we can prune the search  tree; because it means that the 
+	maximizing player won't find a better move in this branch.
+
+	OBS:
+		- We only need to evaluate the value for leaf nodes because they are our final states
+		of the board and therefore we need to use their values to base our decision of what is 
+		the best move.
+
+	Arguments: 
+		- board: chess board state
+		- depth: how many depths we want to calculate for this board
+		- player: player that is currently moving pieces. 1 for AI (max), -1 for human (min).
+
+	Returns:
+		- best_score, best_move: returns best move that it found and its value.
+	"""
+	global COUNTER
+	COUNTER += 1
+
+	# recursion base case
+	if depth == 0:
+		# evaluate current board
+		# value = quiescence_search(board, player, alpha, beta)
+		# return value, None
+		# if not board.turn:
+		# 	score = board_value(board)
+		# else: 
+		# 	score = -board_value(board)
+		# score = player * board_value(board)
+		score = player * psqt.board_value_piece_square(board)
+		return score, None
+
+	# null move prunning
+	if null_move and depth >= (R+1) and not board.is_check():
+		board.push(chess.Move.null())
+		score = -negamax(board, depth -1 - R, -player, False, -beta, -beta+1)[0]
+		board.pop()
+		if score >= beta:
+			return beta, None
+
+	best_move = None
+
+	# initializing best_score
+	best_score = float("-inf")
+	
+	# for move in board.legal_moves:
+	for move in organize_moves(board):
+		# Make the move
+		board.push(move)
+
+		# # if threefold repetition, we don't want to evaluate this move
+		# if board.can_claim_threefold_repetition():
+		# 	board.pop()  
+		# 	continue
+
+		score, _ = negamax(board, depth-1, -player, null_move, -beta, -alpha)
+		score = -score
+
+		# take move back
+		board.pop()
+
+		if score >= beta:
+			return score, move
+
+		# Look for moves that maximize position, (AI moves)
+		if score > best_score:
+			# if it was the highest evaluation function move so far, we make this move
+			best_score = score
+			best_move = move
+		
+		# setting alpha variable to do prunning
+		alpha = max(alpha, score)
+
+		# alpha beta prunning when we already found a solution that is at least as good as the current one
+		# those branches won't be able to influence the final decision so we don't need to waste time analyzing them
+		if alpha >= beta:
+			break
+
+	# if it returned no best move, we make a random one
+	if not best_move:
+		if board.legal_moves:
+			best_move = random.choice([move for move in board.legal_moves])
+		else:
+			best_move = (None, None)
+	
+	return best_score, best_move
 
 
 def get_black_pieces_best_move(board: chess.Board, move, depth: int) -> Tuple[Union[int, chess.Move]]:
@@ -258,7 +432,26 @@ def get_black_pieces_best_move(board: chess.Board, move, depth: int) -> Tuple[Un
 		board.pop()  # unmake the last move
 		return 0, None
 
-	value, _ = get_move_score(board, depth-1, True)
+	# value, _, _ = get_move_score(board, depth-1, True, True)
+	value, _ = negamax(board, depth-1, 1, True)
+
+	board.pop()
+	return board, value, move
+
+
+def get_black_pieces_best_move_1(board: chess.Board, move, depth: int) -> Tuple[Union[int, chess.Move]]:
+
+	# initializing best_score found depending on the player
+	best_move = None
+	best_score = float("-inf")
+
+	board.push(move)
+	if board.can_claim_threefold_repetition():
+		board.pop()  # unmake the last move
+		return 0, None
+
+	# value, _, _ = get_move_score(board, depth-1, True, True)
+	value, _ = negamax(board, depth-1, 1, True)
 
 	board.pop()
 	return board, value, move
@@ -266,7 +459,9 @@ def get_black_pieces_best_move(board: chess.Board, move, depth: int) -> Tuple[Un
 
 @app.route('/')
 @cross_origin()
-def hello_world() -> Dict[str, Any]:
+def main_search() -> Dict[str, Any]:
+	global COUNTER
+
 	fen = request.args.get('fen')
 	START_LAYER = 2
 
@@ -303,7 +498,6 @@ def hello_world() -> Dict[str, Any]:
 			board.pop()
 		START_LAYER -= 1
 	
-	# TODO: implement null move search (https://www.chessprogramming.org/Principal_Variation_Search)
 	# TODO: implement transposition table
 
 	arguments = [(board, move, DEPTHS)
@@ -331,6 +525,7 @@ def hello_world() -> Dict[str, Any]:
 	best_move = layer_1_pointer[layer_1_nodes[-1][0], layer_1_nodes[-1][2].uci()]
 	end = time.time()
 	print(end-st)
+	print('counter>', COUNTER)
 
 	return {
 		'statusCode': 200,

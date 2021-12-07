@@ -33,7 +33,7 @@ CORNERS = [(0, 0), (0, 1), (1, 0), (1, 1), (0, 7), (0, 6), (1, 7), (1, 6),
 
 # Search constants
 START_LAYER = 2
-DEPTHS = 0
+DEPTHS = 2
 
 app = Flask(__name__)
 cors = CORS(app)
