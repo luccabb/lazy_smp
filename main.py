@@ -1,16 +1,15 @@
 from flask import request
 from flask_cors import CORS, cross_origin
 from flask import Flask
-import json
 import chess
 import multiprocessing as mp
-import functools
 import copy
 import random
 import time
-import psqt
+import lazy_smp, parallel_alpha_beta
 from typing import Tuple, Dict, Union, Any
-from collections import defaultdict, deque
+from collections import defaultdict
+
 
 # Evaluation function constants
 MOVES = []
@@ -35,8 +34,6 @@ CORNERS = [(0, 0), (0, 1), (1, 0), (1, 1), (0, 7), (0, 6), (1, 7), (1, 6),
 			(6, 6), (6, 7), (7, 6), (7, 7), (6, 0), (6, 1), (7, 1), (7, 0)]
 
 # Search constants
-START_LAYER = 2
-DEPTHS = 2
 R = 2
 COUNTER = 0
 
@@ -272,10 +269,7 @@ def get_move_score(
 
 	# if it returned no best move, we make a random one
 	if not best_move:
-		if board.legal_moves:
-			best_move = random.choice([move for move in board.legal_moves])
-		else:
-			best_move = (None, None)
+		best_move = random.choice([move for move in board.legal_moves])
 
 	return best_move_value, best_move, alpha
 
@@ -315,151 +309,66 @@ def organize_moves(board: chess.Board):
 	Returns:
 		- legal_moves: list of all the possible moves for the current player.
 	"""
-	org_moves = deque()
+	# moves = [l for l in board.legal_moves]
+	# random.shuffle(moves)
+	# return moves
+	org_moves = []
+	captures = []
 	for move in board.legal_moves:
 		if board.is_capture(move):
-			org_moves.appendleft(move)
+			captures.append(move)
 		else:
 			org_moves.append(move)
-	return list(org_moves)
-
-
-def negamax(
-	board: chess.Board, 
-	depth: int, 
-	player: int, 
-	null_move: bool,
-	alpha: float = float("-inf"), 
-	beta: float = float("inf")) -> Tuple[Union[int, chess.Move]]:
-	"""
-	This functions receives a board, depth and a player; and it returns
-	the best move for the current board based on how many depths we're looking ahead
-	and which player is playing. Alpha and beta are used to prune the search tree.
-	Alpha represents the best score for the maximizing player (best choice (highest value)  we've found 
-	along the path for max) and beta represents the best score for the minimizing player
-	(best choice (lowest value) we've found along the path for min). When Alpha is higher 
-	than or equal to Beta, we can prune the search  tree; because it means that the 
-	maximizing player won't find a better move in this branch.
-
-	OBS:
-		- We only need to evaluate the value for leaf nodes because they are our final states
-		of the board and therefore we need to use their values to base our decision of what is 
-		the best move.
-
-	Arguments: 
-		- board: chess board state
-		- depth: how many depths we want to calculate for this board
-		- player: player that is currently moving pieces. 1 for AI (max), -1 for human (min).
-
-	Returns:
-		- best_score, best_move: returns best move that it found and its value.
-	"""
-	global COUNTER
-	COUNTER += 1
-
-	# recursion base case
-	if depth == 0:
-		# evaluate current board
-		# value = quiescence_search(board, player, alpha, beta)
-		# return value, None
-		# if not board.turn:
-		# 	score = board_value(board)
-		# else: 
-		# 	score = -board_value(board)
-		# score = player * board_value(board)
-		score = player * psqt.board_value_piece_square(board)
-		return score, None
-
-	# null move prunning
-	if null_move and depth >= (R+1) and not board.is_check():
-		board.push(chess.Move.null())
-		score = -negamax(board, depth -1 - R, -player, False, -beta, -beta+1)[0]
-		board.pop()
-		if score >= beta:
-			return beta, None
-
-	best_move = None
-
-	# initializing best_score
-	best_score = float("-inf")
-	
-	# for move in board.legal_moves:
-	for move in organize_moves(board):
-		# Make the move
-		board.push(move)
-
-		# # if threefold repetition, we don't want to evaluate this move
-		# if board.can_claim_threefold_repetition():
-		# 	board.pop()  
-		# 	continue
-
-		score, _ = negamax(board, depth-1, -player, null_move, -beta, -alpha)
-		score = -score
-
-		# take move back
-		board.pop()
-
-		if score >= beta:
-			return score, move
-
-		# Look for moves that maximize position, (AI moves)
-		if score > best_score:
-			# if it was the highest evaluation function move so far, we make this move
-			best_score = score
-			best_move = move
-		
-		# setting alpha variable to do prunning
-		alpha = max(alpha, score)
-
-		# alpha beta prunning when we already found a solution that is at least as good as the current one
-		# those branches won't be able to influence the final decision so we don't need to waste time analyzing them
-		if alpha >= beta:
-			break
-
-	# if it returned no best move, we make a random one
-	if not best_move:
-		if board.legal_moves:
-			best_move = random.choice([move for move in board.legal_moves])
-		else:
-			best_move = (None, None)
-	
-	return best_score, best_move
-
-
-def get_black_pieces_best_move(board: chess.Board, move, depth: int) -> Tuple[Union[int, chess.Move]]:
-	board.push(move)
-	if board.can_claim_threefold_repetition():
-		board.pop()  # unmake the last move
-		return 0, None
-
-	# value, _, _ = get_move_score(board, depth-1, True, True)
-	value, _ = negamax(board, depth-1, 1, True)
-
-	board.pop()
-	return board, value, move
-
-
-def get_black_pieces_best_move_1(board: chess.Board, move, depth: int) -> Tuple[Union[int, chess.Move]]:
-
-	# initializing best_score found depending on the player
-	best_move = None
-	best_score = float("-inf")
-
-	board.push(move)
-	if board.can_claim_threefold_repetition():
-		board.pop()  # unmake the last move
-		return 0, None
-
-	# value, _, _ = get_move_score(board, depth-1, True, True)
-	value, _ = negamax(board, depth-1, 1, True)
-
-	board.pop()
-	return board, value, move
+	random.shuffle(captures) 
+	random.shuffle(org_moves)
+	return captures + org_moves
 
 
 @app.route('/')
 @cross_origin()
 def main_search() -> Dict[str, Any]:
+	fen = request.args.get('fen')
+	board = chess.Board(fen)
+	st = time.time()
+	print('st')
+	res = lazy_smp.lazy_smp(board, 4, 1, True)
+	# res = negamax(board, 4, 1, True)[1]
+	end = time.time()
+	print(end - st)
+	print(res)
+
+	return {
+		'statusCode': 200,
+		'body': {'move': res.uci()},
+		'headers': {
+			'Access-Control-Allow-Headers': 'Content-Type',
+			'Access-Control-Allow-Origin': '*',
+			'Access-Control-Allow-Methods': 'OPTIONS,GET'
+		},
+	}
+	
+	# nprocs = mp.cpu_count()
+	# pool = mp.Pool(processes=nprocs)
+	# print(nprocs, 'start')
+	# st = time.time()
+	# result = negamax(board, 2, 1, False)
+	# end = time.time()
+	# print(end-st)
+
+
+    # # arguments = [(board, move, 2, True) for move in board.legal_moves]
+    # # result = pool.starmap(get_main_move_score, arguments)
+    # # result = sorted(result, key = lambda a: a[0])
+    # # print(result)
+	# return {
+    #     'statusCode': 200,
+    #     'body': {'move': result[-1].uci()},
+    #     'headers': {
+    #         'Access-Control-Allow-Headers': 'Content-Type',
+    #         'Access-Control-Allow-Origin': '*',
+    #         'Access-Control-Allow-Methods': 'OPTIONS,GET'
+    #     },
+    # }
 	global COUNTER
 
 	fen = request.args.get('fen')

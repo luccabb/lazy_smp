@@ -227,13 +227,6 @@ def get_phase(pieces):
     return phase
 
 
-# def init_tables():
-
-#     for piece in range(64):
-#     for color in [chess.WHITE, chess.BLACK]:
-#         for piece_type in [chess.PAWN, chess.KNIGHT, chess.BISHOP, chess.ROOK, chess.QUEEN, chess.KING]:
-#             mg_table[] = MG_PESTO[piece_type][]
-
 def board_value_piece_square(board: chess.Board) -> float:
     """
     This functions receives a board and assigns a value to it, it acts as
