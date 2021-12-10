@@ -7,6 +7,7 @@ import copy
 import random
 import time
 import lazy_smp, parallel_alpha_beta
+import helper
 from typing import Tuple, Dict, Union, Any
 from collections import defaultdict
 
@@ -312,40 +313,54 @@ def organize_moves(board: chess.Board):
 	# moves = [l for l in board.legal_moves]
 	# random.shuffle(moves)
 	# return moves
-	org_moves = []
+	non_captures = []
 	captures = []
+
 	for move in board.legal_moves:
 		if board.is_capture(move):
 			captures.append(move)
 		else:
-			org_moves.append(move)
+			non_captures.append(move)
+	
 	random.shuffle(captures) 
-	random.shuffle(org_moves)
-	return captures + org_moves
+	random.shuffle(non_captures)
+	return captures + non_captures
 
 
-@app.route('/')
-@cross_origin()
-def main_search() -> Dict[str, Any]:
-	fen = request.args.get('fen')
-	board = chess.Board(fen)
-	st = time.time()
-	print('st')
-	res = lazy_smp.lazy_smp(board, 4, 1, True)
-	# res = negamax(board, 4, 1, True)[1]
-	end = time.time()
-	print(end - st)
-	print(res)
-
+def format_response(best_move: str) -> Dict[str, Any]:
 	return {
 		'statusCode': 200,
-		'body': {'move': res.uci()},
+		'body': {'move': best_move},
 		'headers': {
 			'Access-Control-Allow-Headers': 'Content-Type',
 			'Access-Control-Allow-Origin': '*',
 			'Access-Control-Allow-Methods': 'OPTIONS,GET'
 		},
 	}
+
+
+@app.route('/')
+@cross_origin()
+def main_search() -> Dict[str, Any]:
+	st = time.time()
+	fen = request.args.get('fen')
+	board = chess.Board(fen)
+
+	# ALGORITHM_NAME =  "alpha_beta"
+	# ALGORITHM_NAME = "parallel_alpha_beta_layer_1"
+	ALGORITHM_NAME = "parallel_alpha_beta_layer_2"
+    # ALGORITHM_NAME = "lazy_smp"
+
+	engine = helper.get_implementation(ALGORITHM_NAME)
+
+	depth = 5
+	player = 1
+	null_move = True
+
+	best_move = engine(board, depth, player, null_move)
+	end = time.time()
+	print((end - st) * 1000)
+	return format_response(best_move)
 	
 	# nprocs = mp.cpu_count()
 	# pool = mp.Pool(processes=nprocs)

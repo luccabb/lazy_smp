@@ -38,6 +38,7 @@ def negamax_smp(
 		- best_score, best_move: returns best move that it found and its value.
 	"""
 
+    # check if board was already evaluated
 	if board.fen() in shared_hash_table:
 		return shared_hash_table[board.fen()]
 
@@ -66,7 +67,8 @@ def negamax_smp(
 	
 	# for move in board.legal_moves:
 	for move in main.organize_moves(board):
-
+        
+        # stop search if this node was already added in our hash table
 		if board.fen() in shared_hash_table:
 			return shared_hash_table[board.fen()]
 
@@ -108,19 +110,24 @@ def negamax_smp(
 		else:
 			best_move = None
 
+    # add to hash table before returning
 	shared_hash_table[board.fen()] = (best_score, best_move)
-
 	return best_score, best_move
 
 
 def lazy_smp(board: chess.Board, depth: int, player: int, null_move: bool):
 
+    # getting number of processors
 	nprocs = mp.cpu_count()
 
+    # start manager so that we can share data between processes
 	with mp.Manager() as manager:
+        
+        # create shared hash table
 		shared_hash_table = manager.dict()
 		processes = []
-
+        
+        # start search for all processors from the root node
 		for _ in range(nprocs):
 			p = mp.Process(target=negamax_smp, args=(board, depth, player, null_move, shared_hash_table))
 			p.start()
@@ -129,7 +136,9 @@ def lazy_smp(board: chess.Board, depth: int, player: int, null_move: bool):
 		# wait for any process to finish
 		mp.connection.wait([p.sentinel for p in processes])
 
+        # close all ongoing processes
 		for p in processes:
 			p.terminate()
-		# print(shared_hash_table)
-		return shared_hash_table[board.fen()][1]
+        
+		# return best move for our original board
+		return shared_hash_table[board.fen()][1].uci()

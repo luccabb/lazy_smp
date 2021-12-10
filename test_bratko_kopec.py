@@ -51,7 +51,7 @@ class TestChessFunctions(unittest.TestCase):
 
         depth | null_move | score | time
         # 6 | true | 4 | 2074.589 s
-        # 6 | false | 6 | 3594.249 s
+        6 | false | 8 | 18935.249 s
         5 | true | 3 | 2119.793 s
         5 | false | 3 | 2920.879 s
         4 | true | 2 | 318.830 s

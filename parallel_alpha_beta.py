@@ -43,16 +43,16 @@ def negamax(
 	"""
 
 	# recursion base case
-	if depth == 0:
+	if depth <= 0:
 		# evaluate current board
 		# value = quiescence_search(board, player, alpha, beta)
 		score = player * psqt.board_value_piece_square(board)
 		return score, None
 
 	# null move prunning
-	if null_move and depth >= (R+1) and not board.is_check():
+	if null_move and depth >= (main.R+1) and not board.is_check():
 		board.push(chess.Move.null())
-		score = -negamax(board, depth -1 - R, -player, False, -beta, -beta+1)[0]
+		score = -negamax(board, depth -1 - main.R, -player, False, -beta, -beta+1)[0]
 		board.pop()
 		if score >= beta:
 			return beta, None
@@ -104,7 +104,7 @@ def negamax(
 	return best_score, best_move
 
 
-def get_black_pieces_best_move(board: chess.Board, move, depth: int) -> Tuple[Union[int, chess.Move]]:
+def get_black_pieces_best_move(board: chess.Board, move: chess.Move, depth: int, player: int, null_move: bool) -> Tuple[Union[int, chess.Move]]:
 	
 	# make move
 	board.push(move)
@@ -114,7 +114,7 @@ def get_black_pieces_best_move(board: chess.Board, move, depth: int) -> Tuple[Un
 		board.pop()  # unmake the last move
 		return 0, None
 
-	value, _ = negamax(board, depth-1, 1, True)
+	value, _ = negamax(board, depth-1, player, null_move)
 
 	# remove move
 	board.pop()
@@ -122,7 +122,11 @@ def get_black_pieces_best_move(board: chess.Board, move, depth: int) -> Tuple[Un
 	return board, value, move
 
 
-def parallel_alpha_beta_layer_2(board: chess.Board):
+def alpha_beta(board: chess.Board, depth: int, player: int, null_move: bool) -> Tuple[Union[int, chess.Move]]:
+	return negamax(board, depth, player, null_move)[1].uci()
+
+
+def parallel_alpha_beta_layer_2(board: chess.Board, depth: int,	player: int, null_move: bool):
 	# search constants
 	START_LAYER = 2
 	layer_1_pointer = {}
@@ -141,26 +145,18 @@ def parallel_alpha_beta_layer_2(board: chess.Board):
 		for move_1 in layer_1_moves:
 			board.push(move_1)
 			if board.is_checkmate() or board.is_stalemate():
-				return {
-					'statusCode': 200,
-					'body': {'move': move_1.uci()},
-					'headers': {
-						'Access-Control-Allow-Headers': 'Content-Type',
-						'Access-Control-Allow-Origin': '*',
-						'Access-Control-Allow-Methods': 'OPTIONS,GET'
-					},
-				}
+				return move_1
 			for move_2 in board.legal_moves:
 				layer_1_pointer[(
 					copy.copy(board.fen()),
-					move_2.uci())] = move_1.uci()
+					move_2.uci())] = move_1
 				start_layer_moves.append((copy.copy(board), move_2))
 			board.pop()
 		START_LAYER -= 1
 
 	# sending all possible nodes from start layer to a different processor
 	# TODO: call negamax directly instead of get_black_pieces_best_move.
-	arguments = [(board, move, DEPTHS)
+	arguments = [(board, move, depth, player, null_move)
 				 for board, move in start_layer_moves]
 	start_layer_result = pool.starmap(get_black_pieces_best_move, arguments)
 
@@ -184,21 +180,12 @@ def parallel_alpha_beta_layer_2(board: chess.Board):
 
 	layer_1_nodes.sort(key=lambda a: a[1])
 	best_board, best_move = layer_1_nodes[-1][0], layer_1_nodes[-1][2].uci()
-	best_move = layer_1_pointer[best_board, best_move]
+	best_move = layer_1_pointer[best_board, best_move].uci()
 
-	return {
-		'statusCode': 200,
-		'body': {'move': best_move},
-		'headers': {
-			'Access-Control-Allow-Headers': 'Content-Type',
-			'Access-Control-Allow-Origin': '*',
-			'Access-Control-Allow-Methods': 'OPTIONS,GET'
-		},
-	}
+	return best_move
 
 
 def parallel_alpha_beta_layer_1(board: chess.Board, depth: int,	player: int, null_move: bool):
-
 	# creating pool of processes
 	nprocs = mp.cpu_count()
 	pool = mp.Pool(processes=nprocs)
@@ -207,17 +194,9 @@ def parallel_alpha_beta_layer_1(board: chess.Board, depth: int,	player: int, nul
 	arguments = [(board, move, depth, player, null_move) for move in board.legal_moves]
 	# executing all the moves at layer 1 in parallel
 	# starmap blocks until all processes are done
-	result = pool.starmap(negamax, arguments)
+	result = pool.starmap(get_black_pieces_best_move, arguments)
 
 	# sorting output and getting best move
-	best_move = sorted(result, key = lambda a: a[0])[-1][1].uci()
-	
-	return {
-		'statusCode': 200,
-		'body': {'move': best_move},
-		'headers': {
-			'Access-Control-Allow-Headers': 'Content-Type',
-			'Access-Control-Allow-Origin': '*',
-			'Access-Control-Allow-Methods': 'OPTIONS,GET'
-		},
-	}
+	best_move = sorted(result, key = lambda a: a[1])[-1][2].uci()
+
+	return best_move
