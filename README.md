@@ -1,9 +1,18 @@
 ## Running server
+### Installing dependencies
+
+`pip install -r requirements.txt`
 
 `python main.py`
 ## Running with pypy
+### Installing dependencies
 
-`pypy main2.py`
+`pypy3 -m pip install -r requirements_pypy.txt`
+### Starting server
+
+`pypy3 main_pypy.py`
+
+
 ## Running Tests
 
 ### Unit Tests

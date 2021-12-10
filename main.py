@@ -2,14 +2,10 @@ from flask import request
 from flask_cors import CORS, cross_origin
 from flask import Flask
 import chess
-import multiprocessing as mp
-import copy
 import random
 import time
-import lazy_smp, parallel_alpha_beta
 import helper
 from typing import Tuple, Dict, Union, Any
-from collections import defaultdict
 
 
 # Evaluation function constants
@@ -297,36 +293,6 @@ def quiescence_search(board: chess.Board, player: int, alpha: float, beta: float
 	return alpha
 
 
-def organize_moves(board: chess.Board):
-	"""
-	This function receives a board and it returns a list of all the
-	possible moves for the current player, sorted by importance.
-	Right now we are only sending the moves that are capturing pieces
-	at the starting positions in our array (so we can prune more and earlier).
-
-	Arguments:
-		- board: chess board state
-
-	Returns:
-		- legal_moves: list of all the possible moves for the current player.
-	"""
-	# moves = [l for l in board.legal_moves]
-	# random.shuffle(moves)
-	# return moves
-	non_captures = []
-	captures = []
-
-	for move in board.legal_moves:
-		if board.is_capture(move):
-			captures.append(move)
-		else:
-			non_captures.append(move)
-	
-	random.shuffle(captures) 
-	random.shuffle(non_captures)
-	return captures + non_captures
-
-
 def format_response(best_move: str) -> Dict[str, Any]:
 	return {
 		'statusCode': 200,
@@ -348,12 +314,12 @@ def main_search() -> Dict[str, Any]:
 
 	# ALGORITHM_NAME =  "alpha_beta"
 	# ALGORITHM_NAME = "parallel_alpha_beta_layer_1"
-	ALGORITHM_NAME = "parallel_alpha_beta_layer_2"
-	# ALGORITHM_NAME = "lazy_smp"
+	# ALGORITHM_NAME = "parallel_alpha_beta_layer_2"
+	ALGORITHM_NAME = "lazy_smp"
 
 	engine = helper.get_implementation(ALGORITHM_NAME)
 
-	depth = 4
+	depth = 6
 	player = 1
 	null_move = True
 

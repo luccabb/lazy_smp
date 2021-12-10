@@ -1,20 +1,21 @@
+#!/usr/bin/env pypy
+
 import chess
-from typing import Tuple, Union
 import multiprocessing as mp
-import main
-import psqt
-import random  
-import move_ordering
+import main_pypy
+import psqt_pypy
+import random
+import move_ordering_pypy
 
 
 def negamax_smp(
-	board: chess.Board, 
-	depth: int, 
-	player: int, 
-	null_move: bool,
-	shared_hash_table: mp.Manager,
-	alpha: float = float("-inf"), 
-	beta: float = float("inf")) -> Tuple[Union[int, chess.Move]]:
+	board, 
+	depth, 
+	player, 
+	null_move,
+	shared_hash_table,
+	alpha = float("-inf"), 
+	beta = float("inf")):
 	"""
 	This functions receives a board, depth and a player; and it returns
 	the best move for the current board based on how many depths we're looking ahead
@@ -47,14 +48,14 @@ def negamax_smp(
 	if depth <= 0:
 		# evaluate current board
 		# value = quiescence_search(board, player, alpha, beta)
-		score = player * psqt.board_value_piece_square(board)
+		score = player * psqt_pypy.board_value_piece_square(board)
 		shared_hash_table[board.fen()] = (score, None)
 		return score, None
 
 	# null move prunning
-	if null_move and depth >= (main.R+1) and not board.is_check():
+	if null_move and depth >= (main_pypy.R+1) and not board.is_check():
 		board.push(chess.Move.null())
-		score = -negamax_smp(board, depth -1 - main.R, -player, False, shared_hash_table, -beta, -beta+1)[0]
+		score = -negamax_smp(board, depth -1 - main_pypy.R, -player, False, shared_hash_table, -beta, -beta+1)[0]
 		board.pop()
 		if score >= beta:
 			shared_hash_table[board.fen()] = (beta, None)
@@ -67,7 +68,7 @@ def negamax_smp(
 	best_score = float("-inf")
 	
 	# for move in board.legal_moves:
-	for move in move_ordering.organize_moves(board):
+	for move in move_ordering_pypy.organize_moves(board):
 		
 		# stop search if this node was already added in our hash table
 		if board.fen() in shared_hash_table:
@@ -116,7 +117,7 @@ def negamax_smp(
 	return best_score, best_move
 
 
-def lazy_smp(board: chess.Board, depth: int, player: int, null_move: bool):
+def lazy_smp(board, depth, player, null_move):
 
 	# getting number of processors
 	nprocs = mp.cpu_count()

@@ -1,3 +1,5 @@
+#!/usr/bin/env pypy
+
 from flask import request
 from flask_cors import CORS, cross_origin
 from flask import Flask
@@ -6,8 +8,10 @@ import chess
 import multiprocessing as mp
 import functools
 import copy
+import lazy_smp_pypy, parallel_alpha_beta_pypy
 import random
 import time
+import helper_pypy
 from collections import defaultdict
 
 # Evaluation function constants
@@ -32,8 +36,7 @@ CORNERS = [(0, 0), (0, 1), (1, 0), (1, 1), (0, 7), (0, 6), (1, 7), (1, 6),
 			(6, 6), (6, 7), (7, 6), (7, 7), (6, 0), (6, 1), (7, 1), (7, 0)]
 
 # Search constants
-START_LAYER = 2
-DEPTHS = 2
+R = 2
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -263,74 +266,7 @@ def get_black_pieces_best_move(args):
     return board, value, move
 
 
-@app.route('/')
-@cross_origin()
-def hello_world():
-	fen = request.args.get('fen')
-	START_LAYER = 2
-
-	board = chess.Board(fen)
-	layer_1_pointer = {}
-
-	nprocs = mp.cpu_count()
-	pool = mp.Pool(processes=nprocs)
-
-	print(nprocs, 'start')
-	st = time.time()
-
-	layer_1_moves = board.legal_moves
-	start_layer_moves = []  # list of tuples containing (board, move)
-
-	while START_LAYER:
-		for move_1 in layer_1_moves:
-			board.push(move_1)
-			if board.is_checkmate() or board.is_stalemate():
-				return {
-					'statusCode': 200,
-					'body': {'move': move_1.uci()},
-					'headers': {
-						'Access-Control-Allow-Headers': 'Content-Type',
-						'Access-Control-Allow-Origin': '*',
-						'Access-Control-Allow-Methods': 'OPTIONS,GET'
-					},
-				}
-			for move_2 in board.legal_moves:
-				layer_1_pointer[(
-					copy.copy(board.fen()), 
-					move_2.uci())] = move_1.uci()
-				start_layer_moves.append((copy.copy(board), move_2))
-			board.pop()
-		START_LAYER -= 1
-	
-	# TODO: implement null move search (https://www.chessprogramming.org/Principal_Variation_Search)
-	# TODO: implement transposition table
-
-	arguments = [(board, move, DEPTHS)
-				 for board, move in start_layer_moves]
-	layer_2_result = pool.map(get_black_pieces_best_move, arguments)
-
-	layer_1_boards_with_moves = defaultdict(list)
-	for board, value, move in layer_2_result:
-		board = copy.copy(board)
-
-		layer_1_boards_with_moves[(board.fen())].append((value, move))
-
-	# for each node in the first layer we need to find the lowest node
-	# in the second layer (white pieces moving we need to minimize the value)
-	# Then we get the best move for the first layer by maximizing the values
-	layer_1_nodes = []
-	for board in layer_1_boards_with_moves:
-		lowest_node = (board, layer_1_boards_with_moves[board][0][0], layer_1_boards_with_moves[board][0][1])
-		for layer_1_value, move in layer_1_boards_with_moves[board][1:]:
-			if layer_1_value < lowest_node[1]:
-				lowest_node = (board, layer_1_value, move)
-		layer_1_nodes.append(lowest_node)
-
-	layer_1_nodes.sort(key=lambda a: a[1])
-	best_move = layer_1_pointer[layer_1_nodes[-1][0], layer_1_nodes[-1][2].uci()]
-	end = time.time()
-	print(end-st)
-
+def format_response(best_move):
 	return {
 		'statusCode': 200,
 		'body': {'move': best_move},
@@ -340,6 +276,30 @@ def hello_world():
 			'Access-Control-Allow-Methods': 'OPTIONS,GET'
 		},
 	}
+
+
+@app.route('/')
+@cross_origin()
+def main_search():
+	st = time.time()
+	fen = request.args.get('fen')
+	board = chess.Board(fen)
+
+	# ALGORITHM_NAME =  "alpha_beta"
+	# ALGORITHM_NAME = "parallel_alpha_beta_layer_1"
+	ALGORITHM_NAME = "parallel_alpha_beta_layer_2"
+	# ALGORITHM_NAME = "lazy_smp"
+
+	engine = helper_pypy.get_pypy_implementation(ALGORITHM_NAME)
+
+	depth = 6
+	player = 1
+	null_move = True
+
+	best_move = engine(board, depth, player, null_move)
+	end = time.time()
+	print((end - st) * 1000)
+	return format_response(best_move)
 
 
 if __name__ == '__main__':
