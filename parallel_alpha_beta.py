@@ -197,20 +197,27 @@ def parallel_alpha_beta_layer_2(board: chess.Board):
 	}
 
 
-def parallel_alpha_beta_layer_1(board: chess.Board):
+def parallel_alpha_beta_layer_1(board: chess.Board, depth: int,	player: int, null_move: bool):
 
-    nprocs = mp.cpu_count()
-    pool = mp.Pool(processes=nprocs)
-    arguments = [(board, move, 2, True) for move in board.legal_moves]
-    result = pool.starmap(negamax, arguments)
-    best_move = sorted(result, key = lambda a: a[0])[-1][1].uci()
+	# creating pool of processes
+	nprocs = mp.cpu_count()
+	pool = mp.Pool(processes=nprocs)
 
-    return {
-        'statusCode': 200,
-        'body': {'move': best_move},
-        'headers': {
-            'Access-Control-Allow-Headers': 'Content-Type',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'OPTIONS,GET'
-        },
-    }
+	# creating list of moves at layer 1
+	arguments = [(board, move, depth, player, null_move) for move in board.legal_moves]
+	# executing all the moves at layer 1 in parallel
+	# starmap blocks until all processes are done
+	result = pool.starmap(negamax, arguments)
+
+	# sorting output and getting best move
+	best_move = sorted(result, key = lambda a: a[0])[-1][1].uci()
+	
+	return {
+		'statusCode': 200,
+		'body': {'move': best_move},
+		'headers': {
+			'Access-Control-Allow-Headers': 'Content-Type',
+			'Access-Control-Allow-Origin': '*',
+			'Access-Control-Allow-Methods': 'OPTIONS,GET'
+		},
+	}
