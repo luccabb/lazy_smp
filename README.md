@@ -24,10 +24,10 @@ pip
 
 2. Install dependencies
 
-`pypy3 -m pip install -r requirements_pypy.txt`
+`pypy3 -m pip install -r requirements.txt`
 ### Starting server
 
-`pypy3 main_pypy.py`
+`pypy3 main.py`
 
 ## Running Tests
 
