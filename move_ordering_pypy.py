@@ -1,4 +1,3 @@
-import chess
 import random
 
 def organize_moves(board):
