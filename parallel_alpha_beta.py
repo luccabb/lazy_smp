@@ -4,6 +4,7 @@ import multiprocessing as mp
 import main
 import psqt
 import random
+import move_ordering
 from collections import defaultdict
 import copy
 
@@ -63,7 +64,7 @@ def negamax(
 	best_score = float("-inf")
 	
 	# for move in board.legal_moves:
-	for move in main.organize_moves(board):
+	for move in move_ordering.organize_moves(board):
 		# make the move
 		board.push(move)
 

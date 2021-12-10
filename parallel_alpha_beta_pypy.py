@@ -1,5 +1,3 @@
-#!/usr/bin/env pypy
-
 import chess
 import multiprocessing as mp
 import psqt_pypy
