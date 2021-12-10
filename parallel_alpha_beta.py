@@ -129,6 +129,7 @@ def alpha_beta(board: chess.Board, depth: int, player: int, null_move: bool) -> 
 def parallel_alpha_beta_layer_2(board: chess.Board, depth: int,	player: int, null_move: bool):
 	# search constants
 	START_LAYER = 2
+	depth = depth - START_LAYER
 	layer_1_pointer = {}
 
 	nprocs = mp.cpu_count()

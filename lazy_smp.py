@@ -11,7 +11,7 @@ def negamax_smp(
 	depth: int, 
 	player: int, 
 	null_move: bool,
-	shared_hash_table: mp.Manager(),
+	shared_hash_table: mp.Manager,
 	alpha: float = float("-inf"), 
 	beta: float = float("inf")) -> Tuple[Union[int, chess.Move]]:
 	"""

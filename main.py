@@ -349,11 +349,11 @@ def main_search() -> Dict[str, Any]:
 	# ALGORITHM_NAME =  "alpha_beta"
 	# ALGORITHM_NAME = "parallel_alpha_beta_layer_1"
 	ALGORITHM_NAME = "parallel_alpha_beta_layer_2"
-    # ALGORITHM_NAME = "lazy_smp"
+	# ALGORITHM_NAME = "lazy_smp"
 
 	engine = helper.get_implementation(ALGORITHM_NAME)
 
-	depth = 5
+	depth = 4
 	player = 1
 	null_move = True
 
