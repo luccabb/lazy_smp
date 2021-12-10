@@ -23,6 +23,7 @@ pip
 `pypy3 -m ensurepip`
 
 2. Install dependencies
+
 `pypy3 -m pip install -r requirements_pypy.txt`
 ### Starting server
 
