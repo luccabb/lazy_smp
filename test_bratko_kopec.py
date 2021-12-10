@@ -33,7 +33,7 @@ POSITIONS = [
 class TestChessFunctions(unittest.TestCase):
     def test_negamax(self):
         """
-        Engine version: negamax, null_move, psqt (with tapered evaluation).
+        Engine version: parallel alpha beta, null_move, psqt (with tapered evaluation).
         Results for Bratko-Kopec test cases:
 
         depth | null_move | score | time
