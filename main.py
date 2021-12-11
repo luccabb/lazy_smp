@@ -307,7 +307,7 @@ def format_response(best_move: str) -> Dict[str, Any]:
 
 @app.route('/')
 @cross_origin()
-def main_search() -> Dict[str, Any]:
+def main_search(request) -> Dict[str, Any]:
 	st = time.time()
 	fen = request.args.get('fen')
 	board = chess.Board(fen)
@@ -319,7 +319,7 @@ def main_search() -> Dict[str, Any]:
 
 	engine = helper.get_implementation(ALGORITHM_NAME)
 
-	depth = 7
+	depth = 3
 	player = 1
 	null_move = True
 
