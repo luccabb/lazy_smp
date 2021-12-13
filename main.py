@@ -307,7 +307,7 @@ def format_response(best_move: str) -> Dict[str, Any]:
 
 @app.route('/')
 @cross_origin()
-def main_search(request) -> Dict[str, Any]:
+def main_search() -> Dict[str, Any]:
 	st = time.time()
 	fen = request.args.get('fen')
 	board = chess.Board(fen)

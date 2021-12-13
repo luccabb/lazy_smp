@@ -46,7 +46,7 @@ class TestChessFunctions(unittest.TestCase):
         3 | true | 3 | 7.496 s
         3 | false |  3 | 7.614 s
 
-        Engine version: Lazy SMP, negamax, null_move, psqt (with tapered evaluation).
+        Engine version: Lazy SMP, null_move, psqt (with tapered evaluation).
         Results for Bratko-Kopec test cases:
 
         depth | null_move | score | time
