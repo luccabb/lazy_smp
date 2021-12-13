@@ -134,55 +134,55 @@ def parallel_alpha_beta_layer_2(board: chess.Board, depth: int,	player: int, nul
 	layer_1_pointer = {}
 
 	nprocs = mp.cpu_count()
-	pool = mp.Pool(processes=nprocs)
 
-	layer_1_moves = board.legal_moves
-	start_layer_moves = []  # list of tuples containing (board, move)
+	with mp.Pool(processes=nprocs) as pool:
+		layer_1_moves = board.legal_moves
+		start_layer_moves = []  # list of tuples containing (board, move)
 
-	# building START_LAYER pointers to layer_1
-	# once we find the best move at START_LAYER
-	# we need to be able to point to the layer 1
-	# movement that generates the best move at START_LAYER
-	while START_LAYER:
-		for move_1 in layer_1_moves:
-			board.push(move_1)
-			if board.is_checkmate() or board.is_stalemate():
-				return move_1
-			for move_2 in board.legal_moves:
-				layer_1_pointer[(
-					copy.copy(board.fen()),
-					move_2.uci())] = move_1
-				start_layer_moves.append((copy.copy(board), move_2))
-			board.pop()
-		START_LAYER -= 1
+		# building START_LAYER pointers to layer_1
+		# once we find the best move at START_LAYER
+		# we need to be able to point to the layer 1
+		# movement that generates the best move at START_LAYER
+		while START_LAYER:
+			for move_1 in layer_1_moves:
+				board.push(move_1)
+				if board.is_checkmate() or board.is_stalemate():
+					return move_1.uci()
+				for move_2 in board.legal_moves:
+					layer_1_pointer[(
+						copy.copy(board.fen()),
+						move_2.uci())] = move_1
+					start_layer_moves.append((copy.copy(board), move_2))
+				board.pop()
+			START_LAYER -= 1
 
-	# sending all possible nodes from start layer to a different processor
-	# TODO: call negamax directly instead of get_black_pieces_best_move.
-	arguments = [(board, move, depth, player, null_move)
-				 for board, move in start_layer_moves]
-	start_layer_result = pool.starmap(get_black_pieces_best_move, arguments)
+		# sending all possible nodes from start layer to a different processor
+		# TODO: call negamax directly instead of get_black_pieces_best_move.
+		arguments = [(board, move, depth, player, null_move)
+					for board, move in start_layer_moves]
+		start_layer_result = pool.starmap(get_black_pieces_best_move, arguments)
 
-	# organizing all the possible achievable values/move
-	# per board.
-	layer_1_boards_with_moves = defaultdict(list)
-	for board, value, move in start_layer_result:
-		board = copy.copy(board)
-		layer_1_boards_with_moves[(board.fen())].append((value, move))
+		# organizing all the possible achievable values/move
+		# per board.
+		layer_1_boards_with_moves = defaultdict(list)
+		for board, value, move in start_layer_result:
+			board = copy.copy(board)
+			layer_1_boards_with_moves[(board.fen())].append((value, move))
 
-	# for each node in the first layer we need to find the lowest node
-	# in the second layer (white pieces moving we need to minimize the value)
-	# Then we get the best move for the first layer by maximizing the values
-	layer_1_nodes = []
-	for board in layer_1_boards_with_moves:
-		lowest_node = (board, *layer_1_boards_with_moves[board][0])
-		for layer_1_value, move in layer_1_boards_with_moves[board][1:]:
-			if layer_1_value < lowest_node[1]:
-				lowest_node = (board, layer_1_value, move)
-		layer_1_nodes.append(lowest_node)
+		# for each node in the first layer we need to find the lowest node
+		# in the second layer (white pieces moving we need to minimize the value)
+		# Then we get the best move for the first layer by maximizing the values
+		layer_1_nodes = []
+		for board in layer_1_boards_with_moves:
+			lowest_node = (board, *layer_1_boards_with_moves[board][0])
+			for layer_1_value, move in layer_1_boards_with_moves[board][1:]:
+				if layer_1_value < lowest_node[1]:
+					lowest_node = (board, layer_1_value, move)
+			layer_1_nodes.append(lowest_node)
 
-	layer_1_nodes.sort(key=lambda a: a[1])
-	best_board, best_move = layer_1_nodes[-1][0], layer_1_nodes[-1][2].uci()
-	best_move = layer_1_pointer[best_board, best_move].uci()
+		layer_1_nodes.sort(key=lambda a: a[1])
+		best_board, best_move = layer_1_nodes[-1][0], layer_1_nodes[-1][2].uci()
+		best_move = layer_1_pointer[best_board, best_move].uci()
 
 	return best_move
 

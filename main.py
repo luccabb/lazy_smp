@@ -6,6 +6,7 @@ import random
 import time
 import helper
 from typing import Tuple, Dict, Union, Any
+import multiprocessing as mp
 
 
 # Evaluation function constants
@@ -331,3 +332,4 @@ def main_search() -> Dict[str, Any]:
 
 if __name__ == '__main__':
 	app.run(host="0.0.0.0", port=5000, debug=True)
+	mp.set_start_method("chess")
