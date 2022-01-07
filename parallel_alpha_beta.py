@@ -2,7 +2,6 @@ import chess
 from typing import Tuple, Union
 import multiprocessing as mp
 import main
-import psqt
 import random
 import move_ordering
 from collections import defaultdict
@@ -16,7 +15,6 @@ DEPTHS = 2
 def negamax(
 	board: chess.Board, 
 	depth: int, 
-	player: int, 
 	null_move: bool,
 	alpha: float = float("-inf"), 
 	beta: float = float("inf")) -> Tuple[Union[int, chess.Move]]:
@@ -47,7 +45,7 @@ def negamax(
 	# recursion base case
 	if depth <= 0:
 		# evaluate current board
-		score = quiescence.quiescence_search(board, player, alpha, beta)
+		score = quiescence.quiescence_search(board, alpha, beta)
 		# value = quiescence_search(board, player, alpha, beta)
 		# score = player * psqt.board_value_piece_square(board)
 		return score, None
@@ -55,7 +53,7 @@ def negamax(
 	# null move prunning
 	if null_move and depth >= (main.R+1) and not board.is_check():
 		board.push(chess.Move.null())
-		score = -negamax(board, depth -1 - main.R, -player, False, -beta, -beta+1)[0]
+		score = -negamax(board, depth -1 - main.R, False, -beta, -beta+1)[0]
 		board.pop()
 		if score >= beta:
 			return beta, None
@@ -75,7 +73,7 @@ def negamax(
 			board.pop()  
 			continue
 
-		score = -negamax(board, depth-1, -player, null_move, -beta, -alpha)[0]
+		score = -negamax(board, depth-1, null_move, -beta, -alpha)[0]
 
 		# take move back
 		board.pop()
@@ -107,7 +105,7 @@ def negamax(
 	return best_score, best_move
 
 
-def get_black_pieces_best_move(board: chess.Board, move: chess.Move, depth: int, player: int, null_move: bool) -> Tuple[Union[int, chess.Move]]:
+def get_black_pieces_best_move(board: chess.Board, move: chess.Move, depth: int, null_move: bool) -> Tuple[Union[int, chess.Move]]:
 	
 	# make move
 	board.push(move)
@@ -117,7 +115,7 @@ def get_black_pieces_best_move(board: chess.Board, move: chess.Move, depth: int,
 		board.pop()  # unmake the last move
 		return 0, None
 
-	value, _ = negamax(board, depth-1, -player, null_move)
+	value, _ = negamax(board, depth-1, null_move)
 
 	# remove move
 	board.pop()
@@ -125,11 +123,11 @@ def get_black_pieces_best_move(board: chess.Board, move: chess.Move, depth: int,
 	return board, value, move
 
 
-def alpha_beta(board: chess.Board, depth: int, player: int, null_move: bool) -> Tuple[Union[int, chess.Move]]:
-	return negamax(board, depth, player, null_move)[1].uci()
+def alpha_beta(board: chess.Board, depth: int, null_move: bool) -> Tuple[Union[int, chess.Move]]:
+	return negamax(board, depth, null_move)[1].uci()
 
 
-def parallel_alpha_beta_layer_2(board: chess.Board, depth: int,	player: int, null_move: bool):
+def parallel_alpha_beta_layer_2(board: chess.Board, depth: int, null_move: bool):
 	# search constants
 	START_LAYER = 2
 	depth = depth - START_LAYER
@@ -158,7 +156,7 @@ def parallel_alpha_beta_layer_2(board: chess.Board, depth: int,	player: int, nul
 
 		# sending all possible nodes from start layer to a different processor
 		# TODO: call negamax directly instead of get_black_pieces_best_move.
-		arguments = [(board, move, depth, player, null_move)
+		arguments = [(board, move, depth, null_move)
 					for board, move in start_layer_moves]
 		parallel_layer_result = pool.starmap(get_black_pieces_best_move, arguments)
 
@@ -183,13 +181,13 @@ def parallel_alpha_beta_layer_2(board: chess.Board, depth: int,	player: int, nul
 	return best_move
 
 
-def parallel_alpha_beta_layer_1(board: chess.Board, depth: int,	player: int, null_move: bool):
+def parallel_alpha_beta_layer_1(board: chess.Board, depth: int, null_move: bool):
 	# creating pool of processes
 	nprocs = mp.cpu_count()
 	pool = mp.Pool(processes=nprocs)
 
 	# creating list of moves at layer 1
-	arguments = [(board, move, depth, player, null_move) for move in board.legal_moves]
+	arguments = [(board, move, depth, null_move) for move in board.legal_moves]
 	# executing all the moves at layer 1 in parallel
 	# starmap blocks until all processes are done
 	result = pool.starmap(get_black_pieces_best_move, arguments)

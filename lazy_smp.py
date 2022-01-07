@@ -5,12 +5,12 @@ import main
 import psqt
 import random  
 import move_ordering
+import quiescence
 
 
 def negamax_smp(
 	board: chess.Board, 
 	depth: int, 
-	player: int, 
 	null_move: bool,
 	shared_hash_table: mp.Manager,
 	alpha: float = float("-inf"), 
@@ -47,14 +47,14 @@ def negamax_smp(
 	if depth <= 0:
 		# evaluate current board
 		# value = quiescence_search(board, player, alpha, beta)
-		score = player * psqt.board_value_piece_square(board)
+		score = quiescence.quiescence_search(board, alpha, beta)
 		shared_hash_table[board.fen()] = (score, None)
 		return score, None
 
 	# null move prunning
 	if null_move and depth >= (main.R+1) and not board.is_check():
 		board.push(chess.Move.null())
-		score = -negamax_smp(board, depth -1 - main.R, -player, False, shared_hash_table, -beta, -beta+1)[0]
+		score = -negamax_smp(board, depth -1 - main.R, False, shared_hash_table, -beta, -beta+1)[0]
 		board.pop()
 		if score >= beta:
 			shared_hash_table[board.fen()] = (beta, None)
@@ -81,7 +81,7 @@ def negamax_smp(
 			board.pop()  
 			continue
 
-		score = -negamax_smp(board, depth-1, -player, null_move, shared_hash_table, -beta, -alpha)[0]
+		score = -negamax_smp(board, depth-1, null_move, shared_hash_table, -beta, -alpha)[0]
 
 		# take move back
 		board.pop()
@@ -116,7 +116,7 @@ def negamax_smp(
 	return best_score, best_move
 
 
-def lazy_smp(board: chess.Board, depth: int, player: int, null_move: bool):
+def lazy_smp(board: chess.Board, depth: int, null_move: bool):
 
 	# getting number of processors
 	nprocs = mp.cpu_count()
@@ -130,7 +130,7 @@ def lazy_smp(board: chess.Board, depth: int, player: int, null_move: bool):
 		
 		# start search for all processors from the root node
 		for _ in range(nprocs):
-			p = mp.Process(target=negamax_smp, args=(board, depth, player, null_move, shared_hash_table))
+			p = mp.Process(target=negamax_smp, args=(board, depth, null_move, shared_hash_table))
 			p.start()
 			processes.append(p)
 		

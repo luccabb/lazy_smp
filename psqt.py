@@ -258,4 +258,8 @@ def board_value_piece_square(board: chess.Board) -> float:
                     mg_score -= MG_PESTO[piece.piece_type][file][rank] + MG_PIECE_VALUES[piece.piece_type]
                     eg_score -= EG_PESTO[piece.piece_type][file][rank] + EG_PIECE_VALUES[piece.piece_type]
     eval = ((mg_score * (256 - phase)) + (eg_score * phase)) / 256
-    return eval
+
+    # return negative value if white pieces
+    if board.turn:
+        return eval
+    return -eval
