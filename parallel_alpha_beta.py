@@ -46,8 +46,6 @@ def negamax(
 	if depth <= 0:
 		# evaluate current board
 		score = quiescence.quiescence_search(board, alpha, beta)
-		# value = quiescence_search(board, player, alpha, beta)
-		# score = player * psqt.board_value_piece_square(board)
 		return score, None
 
 	# null move prunning

@@ -46,7 +46,6 @@ def negamax_smp(
 	# recursion base case
 	if depth <= 0:
 		# evaluate current board
-		# value = quiescence_search(board, player, alpha, beta)
 		score = quiescence.quiescence_search(board, alpha, beta)
 		shared_hash_table[board.fen()] = (score, None)
 		return score, None
