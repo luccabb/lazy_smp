@@ -272,28 +272,6 @@ def get_move_score(
 	return best_move_value, best_move, alpha
 
 
-def quiescence_search(board: chess.Board, player: int, alpha: float, beta: float):
-	stand_pat = player * board_value(board)
-	if(stand_pat >= beta):
-		return beta
-
-	if(alpha < stand_pat):
-		alpha = stand_pat
-
-	for move in board.legal_moves:
-		if board.is_capture(move):
-			board.push(move)
-			score = -quiescence_search(board, -player, -beta, -alpha)
-			board.pop()
-
-			if(score >= beta):
-				return beta
-			
-			if(score > alpha):
-				alpha = score  
-	return alpha
-
-
 def format_response(best_move: str) -> Dict[str, Any]:
 	return {
 		'statusCode': 200,

@@ -65,12 +65,26 @@ class TestChessFunctions(unittest.TestCase):
         depth | null_move | score | time
         # 6 | true | 4 | 2074.589 s
         # 6 | false | 8 | 18935.249 s
-        # 5 | true | 3 | 2119.793 s
+        5 | true | 2 | 3353.040 s
         # 5 | false | 3 | 2920.879 s
-        # 4 | true | 2 | 318.830 s
-        # 4 | false | 1 | 333.154 s
-        # 3 | true | 3 | 44.176 s
-        # 3 | false |  3 | 51.164 s
+        4 | true | 2 | 286.547s s
+        4 | false | 2 | 296.157 s
+        3 | true | 2 | 14.578 s
+        3 | false | 2 | 16.503 s
+
+        Engine version: Parallel Alpha-Beta Layer 2, quiesce, null_move, 
+        psqt (with tapered evaluation).
+        Results for Bratko-Kopec test cases:
+
+        depth | null_move | score | time
+        # 6 | true | 4 | 2074.589 s
+        # 6 | false | 8 | 18935.249 s
+        5 | true | 2 | 3395.183 s
+        5 | false | 2 | 3524.392 s
+        4 | true | 2 | 275.934 s
+        4 | false | 2 | 278.325 s
+        3 | true | 2 | 17.765 s
+        3 | false | 2 | 18.147 s
         """
 
         correct = 0
@@ -79,11 +93,8 @@ class TestChessFunctions(unittest.TestCase):
 
             board = chess.Board(position)
             player = -1 if board.turn else 1
-            result = parallel_alpha_beta.parallel_alpha_beta_layer_2(board, 3, player, False)
+            result = parallel_alpha_beta.parallel_alpha_beta_layer_2(board, 5, player, True)
             print(str(i)+':', result, type(result))
-            print(moves)
-            print("____________________")
-
 
             if result in moves:
                 correct += 1

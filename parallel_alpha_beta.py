@@ -7,6 +7,7 @@ import random
 import move_ordering
 from collections import defaultdict
 import copy
+import quiescence
 
 # Search constants
 DEPTHS = 2
@@ -46,8 +47,9 @@ def negamax(
 	# recursion base case
 	if depth <= 0:
 		# evaluate current board
+		score = quiescence.quiescence_search(board, player, alpha, beta)
 		# value = quiescence_search(board, player, alpha, beta)
-		score = player * psqt.board_value_piece_square(board)
+		# score = player * psqt.board_value_piece_square(board)
 		return score, None
 
 	# null move prunning
@@ -173,12 +175,6 @@ def parallel_alpha_beta_layer_2(board: chess.Board, depth: int,	player: int, nul
 		for board in parallel_layer_possible_moves:
 			parallel_layer_possible_moves[board].sort(key=lambda x: x[0])
 			layer_1_nodes.append((board, *parallel_layer_possible_moves[board][0]))
-
-			# lowest_node = (board, *parallel_layer_possible_moves[board][0])
-			# for layer_1_value, move in parallel_layer_possible_moves[board][1:]:
-			# 	if layer_1_value < lowest_node[1]:
-			# 		lowest_node = (board, layer_1_value, move)
-			# layer_1_nodes.append(lowest_node)
 
 		layer_1_nodes.sort(key=lambda a: a[1])
 		best_board, best_move = layer_1_nodes[-1][0], layer_1_nodes[-1][2].uci()
