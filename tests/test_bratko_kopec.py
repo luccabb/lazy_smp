@@ -92,7 +92,7 @@ class TestChessFunctions(unittest.TestCase):
         for position, moves in POSITIONS:
 
             board = chess.Board(position)
-            result = parallel_alpha_beta.parallel_alpha_beta_layer_2(board, 3, True)
+            result = parallel_alpha_beta.parallel_alpha_beta_layer_2(board, 3, False)
             print(str(i)+':', result, type(result))
 
             if result in moves:

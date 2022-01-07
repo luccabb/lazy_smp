@@ -261,5 +261,5 @@ def board_value_piece_square(board: chess.Board) -> float:
 
     # return negative value if white pieces
     if board.turn:
-        return eval
-    return -eval
+        return -eval
+    return eval
