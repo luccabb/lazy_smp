@@ -301,8 +301,14 @@ def main_search() -> Dict[str, Any]:
 	depth = 3
 	player = 1
 	null_move = True
-
-	best_move = engine(board, depth, player, null_move)
+	
+	# using cerebellum opening book: https://zipproth.de/Brainfish/download/
+	try:
+		best_move = chess.polyglot.MemoryMappedReader("opening_book/cerebellum.bin").weighted_choice(board).move()
+		return best_move
+	except:
+		best_move = engine(board, depth, player, null_move)
+	
 	end = time.time()
 	print((end - st) * 1000)
 	return format_response(best_move)
