@@ -1,7 +1,8 @@
-
 import psqt
+import chess
 
-def quiescence_search(board, alpha, beta):
+
+def quiescence_search(board: chess.Board, alpha: float, beta: float) -> float:
     stand_pat = psqt.board_value_piece_square(board)
     
     if(stand_pat >= beta):

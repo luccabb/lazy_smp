@@ -2,7 +2,6 @@ import chess
 from typing import Tuple, Union
 import multiprocessing as mp
 import main
-import psqt
 import random  
 import move_ordering
 import quiescence
