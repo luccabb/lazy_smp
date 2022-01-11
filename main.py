@@ -2,6 +2,7 @@ from flask import request
 from flask_cors import CORS, cross_origin
 from flask import Flask
 import chess
+import chess.polyglot
 import random
 import time
 import helper
@@ -304,8 +305,8 @@ def main_search() -> Dict[str, Any]:
 	
 	# using cerebellum opening book: https://zipproth.de/Brainfish/download/
 	try:
-		best_move = chess.polyglot.MemoryMappedReader("opening_book/cerebellum.bin").weighted_choice(board).move()
-		return best_move
+		best_move = chess.polyglot.MemoryMappedReader("opening_book/cerebellum.bin").weighted_choice(board).move().uci()
+		return format_response(best_move)
 	except:
 		best_move = engine(board, depth, player, null_move)
 	
