@@ -33,7 +33,7 @@ pip
 
 ### Unit Tests
 
-`python -m unittest test.py`
+`python -m unittest tests/test.py`
 ### Bratko-Kopec Test
 
 `python -m tests.test_bratko_kopec`
