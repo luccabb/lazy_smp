@@ -4,7 +4,10 @@ import helper
 # UCI based on Sunfish Engine: https://github.com/thomasahle/sunfish/blob/master/uci.py
 
 # Constants
+# ALGORITHM_NAME =  "alpha_beta"
+# ALGORITHM_NAME = "parallel_alpha_beta_layer_1"
 ALGORITHM_NAME = "parallel_alpha_beta_layer_2"
+# ALGORITHM_NAME = "lazy_smp"
 NULL_MOVE = True
 
 def start():
@@ -64,10 +67,9 @@ def start():
             if "depth" in params:
                 depth = int(params[params.index("depth") + 1])
             else:
-                depth = 4
+                depth = 3
             
-            player = 1 if board.turn is True else -1
-            best_move = engine(board, depth, player, NULL_MOVE)
+            best_move = engine(board, depth, NULL_MOVE)
             
             print(f"bestmove {best_move}")
 
