@@ -243,21 +243,27 @@ def board_value_piece_square(board: chess.Board) -> float:
     """
     phase = get_phase(board)
 
-    mg_score = 0
-    eg_score = 0
+    mg = {
+        chess.WHITE: 0,
+        chess.BLACK: 0,
+    }
+    eg = {
+        chess.WHITE: 0,
+        chess.BLACK: 0,
+    }
 
     for square in range(64):
         piece = board.piece_at(square)
         if piece is not None:
-            if piece.color == chess.BLACK:
-                mg_score += MG_PESTO[piece.piece_type][square] + MG_PIECE_VALUES[piece.piece_type]
-                eg_score += EG_PESTO[piece.piece_type][square] + EG_PIECE_VALUES[piece.piece_type]
+            if piece.color == chess.WHITE:
+                mg[piece.color] += MG_PESTO[piece.piece_type][square] + MG_PIECE_VALUES[piece.piece_type]
+                eg[piece.color] += EG_PESTO[piece.piece_type][square] + EG_PIECE_VALUES[piece.piece_type]
             else:
-                mg_score -= MG_PESTO[piece.piece_type][square] + MG_PIECE_VALUES[piece.piece_type]
-                eg_score -= EG_PESTO[piece.piece_type][square] + EG_PIECE_VALUES[piece.piece_type]
+                mg[piece.color] += MG_PESTO[piece.piece_type][63-square] + MG_PIECE_VALUES[piece.piece_type]
+                eg[piece.color] += EG_PESTO[piece.piece_type][63-square] + EG_PIECE_VALUES[piece.piece_type]
+    
+    mg_score = mg[board.turn] - mg[not board.turn]
+    eg_score = eg[board.turn] - eg[not board.turn]
     eval = ((mg_score * (256 - phase)) + (eg_score * phase)) / 256
 
-    # return negative value if white pieces
-    if board.turn:
-        return -eval
     return eval
