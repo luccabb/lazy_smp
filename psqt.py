@@ -241,6 +241,9 @@ def board_value_piece_square(board: chess.Board) -> float:
         - total_value(int): integer representing
         current value for this board.
     """
+    if board.is_stalemate() or board.can_claim_draw():
+        return 0
+    
     phase = get_phase(board)
 
     mg = {
