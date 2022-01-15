@@ -1,55 +1,60 @@
 import chess
-import argparse
-import helper
+from helper import get_implementation
+import chess.polyglot
+import sys
 # UCI based on Sunfish Engine: https://github.com/thomasahle/sunfish/blob/master/uci.py
 
 # Constants
 # ALGORITHM_NAME =  "alpha_beta"
-# ALGORITHM_NAME = "parallel_alpha_beta_layer_1"
-ALGORITHM_NAME = "parallel_alpha_beta_layer_2"
+ALGORITHM_NAME = "parallel_alpha_beta_layer_1"
 # ALGORITHM_NAME = "lazy_smp"
 NULL_MOVE = True
+DEPTH = 3
+
 
 def start():
     """
-    Start the command line user interface.
+    Start the command line user interface (UCI based).
     """
+    board = chess.Board()
+    
+    # keep listening to UCI commands
     while True:
-        command = input()
+        uci_command = input().strip()
+        uci_parameters = uci_command.split(" ")
 
-        if command == "quit":
-            break
+        if uci_command == "quit":
+            sys.exit()
 
-        elif command == "uci":
+        elif uci_command == "uci":
             print('id name Moonfish')
             print('id author Lucca B')
             print("uciok")
         
-        elif command == "isready":
+        elif uci_command == "isready":
             print("readyok")
 
-        elif command == "ucinewgame":
+        elif uci_command == "ucinewgame":
             # start new game
             board = chess.Board()
         
-        elif command.startswith("position"):
-            params = command.split(" ")
-            idx = command.find('moves')
+        elif uci_command.startswith("position"):
+            moves_idx = uci_command.find('moves')
 
-            if idx >= 0:
-                moveslist = command[idx:].split()[1:]
+            if moves_idx >= 0:
+                moveslist = uci_command[moves_idx:].split()[1:]
             else:
                 moveslist = []
 
-            if params[1] == 'fen':
-                if idx >= 0:
-                    fenpart = command[:idx]
+            if uci_parameters[1] == 'fen':
+                if moves_idx >= 0:
+                    fenpart = uci_command[:moves_idx]
                 else:
-                    fenpart = command
+                    fenpart = uci_command
 
                 _, _, fen = fenpart.split(' ', 2)
 
-            elif params[1] == 'startpos':
+            elif uci_parameters[1] == 'startpos':
                 fen = chess.STARTING_FEN
 
             else:
@@ -58,17 +63,16 @@ def start():
             board = chess.Board(fen)
 
             for move in moveslist:
-                board.push_san(move)
+                board.push_uci(move)
         
-        elif command == "go":
-            engine = helper.get_implementation(ALGORITHM_NAME)
-            params = command.split(" ")
+        elif uci_command.startswith("go"):
+            
+            # using cerebellum opening book: https://zipproth.de/Brainfish/download/
+            try:
+                best_move = chess.polyglot.MemoryMappedReader("opening_book/cerebellum.bin").weighted_choice(board).move().uci()
+            except:
+                engine = get_implementation(ALGORITHM_NAME)
+                best_move = engine(board, DEPTH, NULL_MOVE)
+                
+                print(f"bestmove {best_move}")
 
-            if "depth" in params:
-                depth = int(params[params.index("depth") + 1])
-            else:
-                depth = 3
-            
-            best_move = engine(board, depth, NULL_MOVE)
-            
-            print(f"bestmove {best_move}")
