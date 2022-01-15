@@ -37,7 +37,7 @@ test_get_move_score = [
 ]
 
 
-test_negamax = [
+test_boards = [
     (chess.Board("4R2k/8/8/8/8/7R/8/3K4 b - - 0 1"), 1, [chess.Move.from_uci('h8g7')]),
     (chess.Board("8/8/8/6k1/8/5R2/8/2K3R1 b - - 0 1"), 4, [chess.Move.from_uci('g5h4')]),
     (chess.Board("7k/8/8/8/6q1/8/4n3/7K b - - 0 1"), 1, [chess.Move.from_uci('g4h3'), chess.Move.from_uci('g4g1')]),
@@ -46,25 +46,23 @@ test_negamax = [
     (chess.Board("7k/8/8/8/8/1r6/r7/2K5 b - - 0 1"), 3, [chess.Move.from_uci('h8h7'), chess.Move.from_uci('a2h2'), chess.Move.from_uci('b3b4'), chess.Move.from_uci('b3b5'), chess.Move.from_uci('b3b6'), chess.Move.from_uci('b3b7'), chess.Move.from_uci('b3b4'), chess.Move.from_uci('a2g2'), chess.Move.from_uci('a2f2'), chess.Move.from_uci('b3b8'), chess.Move.from_uci('h8g8'), chess.Move.from_uci('h8g7'), chess.Move.from_uci('b3b2')]),
     (chess.Board("rnbqkbnr/pppp1ppp/8/4p3/5PP1/8/PPPPP2P/RNBQKBNR b KQkq - 0 1"), 2, [chess.Move.from_uci('d8h4')]),
 ]
-
-test_lazy_smp = test_negamax
 class TestChessFunctions(unittest.TestCase):
 
 
-    @parameterized.expand(test_count_pieces)
-    def test_count_pieces(self, fen, expected_result):
-        result = api.count_pieces(fen)
-        self.assertEqual(result, expected_result)
+    # @parameterized.expand(test_count_pieces)
+    # def test_count_pieces(self, fen, expected_result):
+    #     result = api.count_pieces(fen)
+    #     self.assertEqual(result, expected_result)
 
 
-    @parameterized.expand(test_board_value)
-    def test_board_value(self, fen, expected_result):
-        result = api.board_value(fen)
-        self.assertEqual(result, expected_result)
+    # @parameterized.expand(test_board_value)
+    # def test_board_value(self, fen, expected_result):
+    #     result = api.board_value(fen)
+    #     self.assertEqual(result, expected_result)
 
 
-    @parameterized.expand(test_negamax)
-    def test_negamax(self, fen, depth, expected_result):
+    @parameterized.expand(test_boards)
+    def test_parallel_alpha_beta_layer_1(self, fen, depth, expected_result):
         result = parallel_alpha_beta.parallel_alpha_beta_layer_1(fen, depth, False)
         self.assertIn(result, expected_result)
 

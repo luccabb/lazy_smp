@@ -1,9 +1,9 @@
-import psqt
+from psqt import board_evaluation
 import chess
 
 
 def quiescence_search(board: chess.Board, alpha: float, beta: float) -> float:
-    stand_pat = psqt.board_value_piece_square(board)
+    stand_pat = board_evaluation(board)
     
     if(stand_pat >= beta):
         return beta

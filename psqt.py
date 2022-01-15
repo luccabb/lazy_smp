@@ -180,7 +180,7 @@ def count_pieces(board: chess.Board) -> Tuple[int]:
     :param 
         board: The board to count the pieces on.
     :return: 
-        A list of tuples containingthe number of pieces of that type
+        A list of tuples containing the number of pieces of that type
         and their phase value.
     """
 
@@ -228,7 +228,7 @@ def get_phase(board: chess.Board) -> float:
     return phase
 
 
-def board_value_piece_square(board: chess.Board) -> float:
+def board_evaluation(board: chess.Board) -> float:
     """
     This functions receives a board and assigns a value to it, it acts as
     an evaluation function of the current state for this game. It returns
