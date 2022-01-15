@@ -7,17 +7,17 @@ def quiescence_search(board: chess.Board, alpha: float, beta: float) -> float:
     
     if(stand_pat >= beta):
         return beta
-    if( alpha < stand_pat ):
+    if(alpha < stand_pat):
         alpha = stand_pat
 
     for move in board.legal_moves:
         if board.is_capture(move):
             board.push(move)        
-            score = quiescence_search(board, -beta, -alpha)
+            score = -quiescence_search(board, -beta, -alpha)
             board.pop()
 
             if(score >= beta):
-                return score
+                return beta
             if(score > alpha):
                 alpha = score  
     
