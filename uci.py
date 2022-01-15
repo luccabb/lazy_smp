@@ -72,7 +72,3 @@ def start():
             best_move = engine(board, depth, NULL_MOVE)
             
             print(f"bestmove {best_move}")
-
-
-if __name__ == "__main__":
-    start()
