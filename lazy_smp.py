@@ -1,7 +1,7 @@
 import chess
 from typing import Tuple, Union
 import multiprocessing as mp
-import main
+import api
 import random  
 import move_ordering
 import quiescence
@@ -50,9 +50,9 @@ def negamax_smp(
 		return score, None
 
 	# null move prunning
-	if null_move and depth >= (main.R+1) and not board.is_check():
+	if null_move and depth >= (api.R+1) and not board.is_check():
 		board.push(chess.Move.null())
-		score = -negamax_smp(board, depth -1 - main.R, False, shared_hash_table, -beta, -beta+1)[0]
+		score = -negamax_smp(board, depth -1 - api.R, False, shared_hash_table, -beta, -beta+1)[0]
 		board.pop()
 		if score >= beta:
 			shared_hash_table[board.fen()] = (beta, None)

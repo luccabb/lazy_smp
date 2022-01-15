@@ -3,7 +3,7 @@ import chess
 from parameterized import parameterized
 import parallel_alpha_beta
 import lazy_smp
-import main
+import api
 
 
 test_count_pieces = [
@@ -53,13 +53,13 @@ class TestChessFunctions(unittest.TestCase):
 
     @parameterized.expand(test_count_pieces)
     def test_count_pieces(self, fen, expected_result):
-        result = main.count_pieces(fen)
+        result = api.count_pieces(fen)
         self.assertEqual(result, expected_result)
 
 
     @parameterized.expand(test_board_value)
     def test_board_value(self, fen, expected_result):
-        result = main.board_value(fen)
+        result = api.board_value(fen)
         self.assertEqual(result, expected_result)
 
 
