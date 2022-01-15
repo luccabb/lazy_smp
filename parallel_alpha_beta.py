@@ -10,6 +10,8 @@ import quiescence
 
 # Search constants
 DEPTHS = 2
+CHECKMATE_SCORE = 10**9
+CHECKMATE_THRESHOLD =  10**8
 
 
 def negamax(
@@ -41,9 +43,11 @@ def negamax(
 	Returns:
 		- best_score, best_move: returns best move that it found and its value.
 	"""
+	if board.is_checkmate():
+		return (-CHECKMATE_SCORE, None)
 
 	# recursion base case
-	if depth <= 0:
+	if depth <= 0 or board.is_stalemate():
 		# evaluate current board
 		score = quiescence.quiescence_search(board, alpha, beta)
 		return score, None
@@ -60,9 +64,10 @@ def negamax(
 
 	# initializing best_score
 	best_score = float("-inf")
+	moves = move_ordering.organize_moves(board)
 	
 	# for move in board.legal_moves:
-	for move in move_ordering.organize_moves(board):
+	for move in moves:
 		# make the move
 		board.push(move)
 
@@ -72,6 +77,10 @@ def negamax(
 			continue
 
 		score = -negamax(board, depth-1, null_move, -beta, -alpha)[0]
+		if score > CHECKMATE_THRESHOLD:
+			score -= 1
+		if score < -CHECKMATE_THRESHOLD:
+			score += 1
 
 		# take move back
 		board.pop()
@@ -191,6 +200,6 @@ def parallel_alpha_beta_layer_1(board: chess.Board, depth: int, null_move: bool)
 	result = pool.starmap(get_black_pieces_best_move, arguments)
 
 	# sorting output and getting best move
-	best_move = sorted(result, key = lambda a: a[1])[-1][2]
+	best_move = sorted(result, key = lambda a: a[1], reverse = True)[-1][2]
 
 	return best_move
