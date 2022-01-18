@@ -46,4 +46,4 @@ To run it as a bot you'll need to produce a python executable. [PyInstaller](htt
 
 `python3 -m PyInstaller main.py`
 
-This command will produce a `build` and `dist` folder. The `dist` folder contains the main executable in a folder called `main`. All the files inside the `main` folder need to be added under `/lichess-bot/engines` for it to work.
+This creates a `build` and `dist` folder. The `dist` folder contains the main executable in a folder called `main`. All the files inside `main` need to be copied over to `/lichess-bot/engines` for it to work.
