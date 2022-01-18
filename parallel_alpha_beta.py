@@ -3,10 +3,10 @@ from typing import Tuple, Union
 import multiprocessing as mp
 import api
 import random
-import move_ordering
+from move_ordering import organize_moves
 from collections import defaultdict
 import copy
-import quiescence
+from quiescence import quiescence_search
 
 # Search constants
 DEPTHS = 2
@@ -49,7 +49,7 @@ def negamax(
 	# recursion base case
 	if depth <= 0 or board.is_stalemate():
 		# evaluate current board
-		score = quiescence.quiescence_search(board, alpha, beta)
+		score = quiescence_search(board, alpha, beta, 4)
 		return score, None
 
 	# null move prunning
@@ -64,17 +64,12 @@ def negamax(
 
 	# initializing best_score
 	best_score = float("-inf")
-	moves = move_ordering.organize_moves(board)
+	moves = organize_moves(board)
 	
 	# for move in board.legal_moves:
 	for move in moves:
 		# make the move
 		board.push(move)
-
-		# if threefold repetition we do not analyze this position
-		if board.can_claim_threefold_repetition():
-			board.pop()  
-			continue
 
 		score = -negamax(board, depth-1, null_move, -beta, -alpha)[0]
 		if score > CHECKMATE_THRESHOLD:
@@ -117,10 +112,10 @@ def get_black_pieces_best_move(board: chess.Board, move: chess.Move, depth: int,
 	# make move
 	board.push(move)
 
-	# check threefold repetition
-	if board.can_claim_threefold_repetition():
-		board.pop()  # unmake the last move
-		return 0, None
+	# check for checkmate in 1 move
+	if board.is_checkmate():
+		board.pop()
+		return board, -CHECKMATE_SCORE*2, move
 
 	value, _ = negamax(board, depth-1, null_move)
 
