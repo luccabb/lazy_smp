@@ -1,7 +1,6 @@
 import chess
 from typing import Tuple, Union
 import multiprocessing as mp
-import api
 import random
 from move_ordering import organize_moves
 from collections import defaultdict
@@ -12,6 +11,7 @@ from quiescence import quiescence_search
 DEPTHS = 2
 CHECKMATE_SCORE = 10**9
 CHECKMATE_THRESHOLD =  10**8
+R = 2
 
 
 def negamax(
