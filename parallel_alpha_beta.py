@@ -53,9 +53,9 @@ def negamax(
 		return score, None
 
 	# null move prunning
-	if null_move and depth >= (api.R+1) and not board.is_checkmate():
+	if null_move and depth >= (R+1) and not board.is_checkmate():
 		board.push(chess.Move.null())
-		score = -negamax(board, depth -1 - api.R, False, -beta, -beta+1)[0]
+		score = -negamax(board, depth -1 - R, False, -beta, -beta+1)[0]
 		board.pop()
 		if score >= beta:
 			return beta, None
