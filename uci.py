@@ -1,5 +1,5 @@
 import chess
-from helper import get_implementation
+from helper import get_engine
 import chess.polyglot
 import sys
 # UCI based on Sunfish Engine: https://github.com/thomasahle/sunfish/blob/master/uci.py
