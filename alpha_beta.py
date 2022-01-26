@@ -1,8 +1,7 @@
-import chess
+from chess import Board, Move
 from typing import Tuple, Union
-from multiprocessing import cpu_count, connection, Manager, Process
 from random import choice
-import move_ordering
+from move_ordering import organize_moves
 from quiescence import quiescence_search
 from base_engine import ChessEngine
 from psqt import board_evaluation
@@ -12,11 +11,11 @@ from helper import CHECKMATE_SCORE, CHECKMATE_THRESHOLD, NULL_MOVE_R
 class AlphaBeta(ChessEngine):
     def negamax(
         self, 
-        board: chess.Board, 
+        board: Board, 
         depth: int, 
         null_move: bool,
         alpha: float = float("-inf"), 
-        beta: float = float("inf")) -> Tuple[Union[int, chess.Move]]:
+        beta: float = float("inf")) -> Tuple[Union[int, Move]]:
         """
         This functions receives a board, depth and a player; and it returns
         the best move for the current board based on how many depths we're looking ahead
@@ -57,7 +56,7 @@ class AlphaBeta(ChessEngine):
         if null_move and depth >= (NULL_MOVE_R+1) and not board.is_checkmate():
             board_value = board_evaluation(board)
             if board_value >= beta:
-                board.push(chess.Move.null())
+                board.push(Move.null())
                 board_value = -self.negamax(board, depth -1 - NULL_MOVE_R, False, -beta, -beta+1)[0]
                 board.pop()
                 if board_value >= beta:
@@ -67,7 +66,7 @@ class AlphaBeta(ChessEngine):
 
         # initializing best_score
         best_score = float("-inf")
-        moves = move_ordering.organize_moves_2(board)
+        moves = organize_moves(board)
         
         # for move in board.legal_moves:
         for move in moves:
@@ -109,5 +108,5 @@ class AlphaBeta(ChessEngine):
         
         return best_score, best_move
 
-    def search_move(self, board: chess.Board, depth: int, null_move: bool) -> Tuple[Union[int, chess.Move]]:
+    def search_move(self, board: Board, depth: int, null_move: bool) -> Tuple[Union[int, Move]]:
         return self.negamax(board, depth, null_move)[1].uci()
