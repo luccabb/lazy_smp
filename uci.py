@@ -6,7 +6,7 @@ import sys
 
 # Constants
 # ALGORITHM_NAME =  "alpha_beta"
-ALGORITHM_NAME = "parallel_alpha_beta_layer_1"
+ALGORITHM_NAME = "parallel_alpha_beta_layer_2"
 # ALGORITHM_NAME = "lazy_smp"
 NULL_MOVE = True
 DEPTH = 3
@@ -17,6 +17,7 @@ def start():
     Start the command line user interface (UCI based).
     """
     board = chess.Board()
+    engine = get_implementation(ALGORITHM_NAME)
     
     # keep listening to UCI commands
     while True:
@@ -66,13 +67,7 @@ def start():
                 board.push_uci(move)
         
         elif uci_command.startswith("go"):
-            
-            # using cerebellum opening book: https://zipproth.de/Brainfish/download/
-            try:
-                best_move = chess.polyglot.MemoryMappedReader("opening_book/cerebellum.bin").weighted_choice(board).move().uci()
-            except:
-                engine = get_implementation(ALGORITHM_NAME)
-                best_move = engine(board, DEPTH, NULL_MOVE)
+            best_move = engine(board, DEPTH, NULL_MOVE)
                 
-                print(f"bestmove {best_move}")
+            print(f"bestmove {best_move}")
 
