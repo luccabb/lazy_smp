@@ -1,6 +1,6 @@
 from enum import Enum
 from parallel_alpha_beta import alpha_beta, parallel_alpha_beta_layer_1, parallel_alpha_beta_layer_2
-from lazy_smp import lazy_smp
+from lazy_smp import LazySMP
 
 class Algorithm(Enum):
     alpha_beta = "alpha_beta"
@@ -18,6 +18,6 @@ def get_implementation(algorithm_name: Algorithm):
     elif algorithm_name is Algorithm.parallel_alpha_beta_layer_2:
         return parallel_alpha_beta_layer_2
     elif algorithm_name is Algorithm.lazy_smp:
-        return lazy_smp
+        return LazySMP()
     raise Exception("algorithm not supported")
     
