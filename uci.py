@@ -17,7 +17,7 @@ def start():
     Start the command line user interface (UCI based).
     """
     board = chess.Board()
-    engine = get_implementation(ALGORITHM_NAME)
+    engine = get_engine(ALGORITHM_NAME)
     
     # keep listening to UCI commands
     while True:
