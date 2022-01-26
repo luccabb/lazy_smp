@@ -3,6 +3,7 @@ from parallel_alpha_beta import alpha_beta, parallel_alpha_beta_layer_1, paralle
 from lazy_smp import LazySMP
 from alpha_beta import AlphaBeta
 from l1p_alpha_beta import Layer1ParallelAlphaBeta
+from l2p_alpha_beta import Layer2ParallelAlphaBeta
 
 # Search constants
 NULL_MOVE_R = 2
@@ -23,7 +24,7 @@ def get_engine(algorithm_name: Algorithm):
     elif algorithm_name is Algorithm.parallel_alpha_beta_layer_1:
         return Layer1ParallelAlphaBeta()
     elif algorithm_name is Algorithm.parallel_alpha_beta_layer_2:
-        return parallel_alpha_beta_layer_2
+        return Layer2ParallelAlphaBeta()
     elif algorithm_name is Algorithm.lazy_smp:
         return LazySMP()
     raise Exception("algorithm not supported")
