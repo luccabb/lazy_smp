@@ -1,17 +1,18 @@
 import chess
 from typing import Tuple, Union
-import multiprocessing as mp
+from multiprocessing import cpu_count, connection, Manager, Process
 import api
 import random  
 import move_ordering
-import quiescence
+from quiescence import quiescence_search
+from base_engine import ChessEngine
 
 
 def negamax_smp(
 	board: chess.Board, 
 	depth: int, 
 	null_move: bool,
-	shared_hash_table: mp.Manager,
+	shared_hash_table: Manager,
 	alpha: float = float("-inf"), 
 	beta: float = float("inf")) -> Tuple[Union[int, chess.Move]]:
 	"""
@@ -45,7 +46,7 @@ def negamax_smp(
 	# recursion base case
 	if depth <= 0:
 		# evaluate current board
-		score = quiescence.quiescence_search(board, alpha, beta)
+		score = quiescence_search(board, alpha, beta)
 		shared_hash_table[board.fen()] = (score, None)
 		return score, None
 
@@ -117,10 +118,10 @@ def negamax_smp(
 def lazy_smp(board: chess.Board, depth: int, null_move: bool):
 
 	# getting number of processors
-	nprocs = mp.cpu_count()
+	nprocs = cpu_count()
 
 	# start manager so that we can share data between processes
-	with mp.Manager() as manager:
+	with Manager() as manager:
 		
 		# create shared hash table
 		shared_hash_table = manager.dict()
@@ -128,12 +129,12 @@ def lazy_smp(board: chess.Board, depth: int, null_move: bool):
 		
 		# start search for all processors from the root node
 		for _ in range(nprocs):
-			p = mp.Process(target=negamax_smp, args=(board, depth, null_move, shared_hash_table))
+			p = Process(target=negamax_smp, args=(board, depth, null_move, shared_hash_table))
 			p.start()
 			processes.append(p)
 		
 		# wait for any process to finish
-		mp.connection.wait([p.sentinel for p in processes])
+		connection.wait([p.sentinel for p in processes])
 
 		# close all ongoing processes
 		for p in processes:
