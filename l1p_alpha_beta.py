@@ -2,7 +2,7 @@ import chess
 from typing import Tuple, Union
 from multiprocessing import cpu_count, Pool
 from alpha_beta import AlphaBeta
-from helper import CHECKMATE_SCORE
+from constants import CHECKMATE_SCORE
 
 
 class Layer1ParallelAlphaBeta(AlphaBeta):

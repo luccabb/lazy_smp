@@ -1,9 +1,7 @@
 import unittest
 import chess
 from parameterized import parameterized
-import parallel_alpha_beta
-import lazy_smp
-import api
+from helper import get_engine
 
 
 test_count_pieces = [
@@ -46,31 +44,48 @@ test_boards = [
     (chess.Board("7k/8/8/8/8/1r6/r7/2K5 b - - 0 1"), 3, [chess.Move.from_uci('h8h7'), chess.Move.from_uci('a2h2'), chess.Move.from_uci('b3b4'), chess.Move.from_uci('b3b5'), chess.Move.from_uci('b3b6'), chess.Move.from_uci('b3b7'), chess.Move.from_uci('b3b4'), chess.Move.from_uci('a2g2'), chess.Move.from_uci('a2f2'), chess.Move.from_uci('b3b8'), chess.Move.from_uci('h8g8'), chess.Move.from_uci('h8g7'), chess.Move.from_uci('b3b2')]),
     (chess.Board("rnbqkbnr/pppp1ppp/8/4p3/5PP1/8/PPPPP2P/RNBQKBNR b KQkq - 0 1"), 2, [chess.Move.from_uci('d8h4')]),
 ]
+
 class TestChessFunctions(unittest.TestCase):
 
 
-    # @parameterized.expand(test_count_pieces)
-    # def test_count_pieces(self, fen, expected_result):
-    #     result = api.count_pieces(fen)
-    #     self.assertEqual(result, expected_result)
+    @parameterized.expand(test_boards)
+    def test_alpha_beta(self, board, depth, expected_result):
+        ALGORITHM_NAME = "alpha_beta"
+        NULL_MOVE = False
 
-
-    # @parameterized.expand(test_board_value)
-    # def test_board_value(self, fen, expected_result):
-    #     result = api.board_value(fen)
-    #     self.assertEqual(result, expected_result)
-
+        engine = get_engine(ALGORITHM_NAME)
+        result = engine.search_move(board, depth, NULL_MOVE)
+        self.assertIn(result, expected_result)
+    
 
     @parameterized.expand(test_boards)
-    def test_parallel_alpha_beta_layer_1(self, fen, depth, expected_result):
-        result = parallel_alpha_beta.parallel_alpha_beta_layer_1(fen, depth, False)
+    def test_parallel_alpha_beta_layer_1(self, board, depth, expected_result):
+        ALGORITHM_NAME = "parallel_alpha_beta_layer_1"
+        NULL_MOVE = False
+
+        engine = get_engine(ALGORITHM_NAME)
+        result = engine.search_move(board, depth, NULL_MOVE)
         self.assertIn(result, expected_result)
 
 
-    # @parameterized.expand(test_lazy_smp)
-    # def test_lazy_smp(self, fen, depth, expected_result):
-    #     result = lazy_smp.lazy_smp(fen, depth, False)
-    #     self.assertIn(chess.Move.from_uci(result), expected_result)
+    @parameterized.expand(test_boards)
+    def test_parallel_alpha_beta_layer_2(self, board, depth, expected_result):
+        ALGORITHM_NAME = "parallel_alpha_beta_layer_2"
+        NULL_MOVE = False
+
+        engine = get_engine(ALGORITHM_NAME)
+        result = engine.search_move(board, depth, NULL_MOVE)
+        self.assertIn(result, expected_result)
+
+
+    @parameterized.expand(test_boards)
+    def test_lazy_smp(self, board, depth, expected_result):
+        ALGORITHM_NAME = "lazy_smp"
+        NULL_MOVE = False
+
+        engine = get_engine(ALGORITHM_NAME)
+        result = engine.search_move(board, depth, NULL_MOVE)
+        self.assertIn(result, expected_result)
 
 
 if __name__ == '__main__':

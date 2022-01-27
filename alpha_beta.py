@@ -5,7 +5,7 @@ from move_ordering import organize_moves
 from quiescence import quiescence_search
 from base_engine import ChessEngine
 from psqt import board_evaluation
-from helper import CHECKMATE_SCORE, CHECKMATE_THRESHOLD, NULL_MOVE_R
+from constants import CHECKMATE_SCORE, CHECKMATE_THRESHOLD, NULL_MOVE_R, QUIESCENCE_SEARCH_DEPTH
 
 
 class AlphaBeta(ChessEngine):
@@ -49,17 +49,17 @@ class AlphaBeta(ChessEngine):
         # recursion base case
         if depth <= 0:
             # evaluate current board
-            board_value = quiescence_search(board, alpha, beta, 2) 
-            return board_value, None
+            board_score = quiescence_search(board, alpha, beta, QUIESCENCE_SEARCH_DEPTH) 
+            return board_score, None
 
         # null move prunning
         if null_move and depth >= (NULL_MOVE_R+1) and not board.is_checkmate():
-            board_value = board_evaluation(board)
-            if board_value >= beta:
+            board_score = board_evaluation(board)
+            if board_score >= beta:
                 board.push(Move.null())
-                board_value = -self.negamax(board, depth -1 - NULL_MOVE_R, False, -beta, -beta+1)[0]
+                board_score = -self.negamax(board, depth -1 - NULL_MOVE_R, False, -beta, -beta+1)[0]
                 board.pop()
-                if board_value >= beta:
+                if board_score >= beta:
                     return beta, None
 
         best_move = None
@@ -73,26 +73,26 @@ class AlphaBeta(ChessEngine):
             # make the move
             board.push(move)
 
-            score = -self.negamax(board, depth-1, null_move, -beta, -alpha)[0]
-            if score > CHECKMATE_THRESHOLD:
-                score -= 1
-            if score < -CHECKMATE_THRESHOLD:
-                score += 1
+            board_score = -self.negamax(board, depth-1, null_move, -beta, -alpha)[0]
+            if board_score > CHECKMATE_THRESHOLD:
+                board_score -= 1
+            if board_score < -CHECKMATE_THRESHOLD:
+                board_score += 1
 
             # take move back
             board.pop()
 
             # beta-cutoff
-            if score >= beta:
-                return score, move
+            if board_score >= beta:
+                return board_score, move
 
             # update best move
-            if score > best_score:
-                best_score = score
+            if board_score > best_score:
+                best_score = board_score
                 best_move = move
             
             # setting alpha variable to do pruning
-            alpha = max(alpha, score)
+            alpha = max(alpha, board_score)
 
             # alpha beta pruning when we already found a solution that is at least as good as the current one
             # those branches won't be able to influence the final decision so we don't need to waste time analyzing them
@@ -109,4 +109,4 @@ class AlphaBeta(ChessEngine):
         return best_score, best_move
 
     def search_move(self, board: Board, depth: int, null_move: bool) -> Tuple[Union[int, Move]]:
-        return self.negamax(board, depth, null_move)[1].uci()
+        return self.negamax(board, depth, null_move)[1]

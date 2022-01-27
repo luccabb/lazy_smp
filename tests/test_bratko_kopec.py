@@ -87,19 +87,19 @@ class TestChessFunctions(unittest.TestCase):
         3 | false | 2 | 18.147 s
         """
 
-        correct = 0
-        i = 0
-        for position, moves in POSITIONS:
+        # correct = 0
+        # i = 0
+        # for position, moves in POSITIONS:
 
-            board = chess.Board(position)
-            result = parallel_alpha_beta.parallel_alpha_beta_layer_2(board, 3, False)
-            print(str(i)+':', result, type(result))
+        #     board = chess.Board(position)
+        #     result = parallel_alpha_beta.parallel_alpha_beta_layer_2(board, 3, False)
+        #     print(str(i)+':', result, type(result))
 
-            if result in moves:
-                correct += 1
-            i += 1
+        #     if result in moves:
+        #         correct += 1
+        #     i += 1
         
-        print("Correct Moves: {} of {}".format(correct, len(POSITIONS)))
+        # print("Correct Moves: {} of {}".format(correct, len(POSITIONS)))
 
 
 if __name__ == '__main__':

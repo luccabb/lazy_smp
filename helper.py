@@ -4,16 +4,13 @@ from alpha_beta import AlphaBeta
 from l1p_alpha_beta import Layer1ParallelAlphaBeta
 from l2p_alpha_beta import Layer2ParallelAlphaBeta
 
-# Search constants
-NULL_MOVE_R = 2
-CHECKMATE_SCORE = 10**8
-CHECKMATE_THRESHOLD =  999*(10**6)
 
 class Algorithm(Enum):
     alpha_beta = "alpha_beta"
     parallel_alpha_beta_layer_1 = "parallel_alpha_beta_layer_1"
     parallel_alpha_beta_layer_2 = "parallel_alpha_beta_layer_2"
     lazy_smp = "lazy_smp"
+
 
 def get_engine(algorithm_name: Algorithm):
     algorithm_name = Algorithm[algorithm_name]
@@ -27,4 +24,3 @@ def get_engine(algorithm_name: Algorithm):
     elif algorithm_name is Algorithm.lazy_smp:
         return LazySMP()
     raise Exception("algorithm not supported")
-    

@@ -1,23 +1,24 @@
-import chess
+from chess import Board, Move
 from typing import Tuple, Union
 from multiprocessing import cpu_count, connection, Manager, Process
-import api
 import random  
 import move_ordering
 from quiescence import quiescence_search
 from base_engine import ChessEngine
+from psqt import board_evaluation
+from constants import CHECKMATE_SCORE, CHECKMATE_THRESHOLD, NULL_MOVE_R, QUIESCENCE_SEARCH_DEPTH
 
 
 class LazySMP(ChessEngine):
 
 	def negamax(
 		self, 
-		board: chess.Board, 
+		board: Board, 
 		depth: int, 
 		null_move: bool,
 		shared_hash_table: Manager,
 		alpha: float = float("-inf"), 
-		beta: float = float("inf")) -> Tuple[Union[int, chess.Move]]:
+		beta: float = float("inf")) -> Tuple[Union[int, Move]]:
 		"""
 		This functions receives a board, depth and a player; and it returns
 		the best move for the current board based on how many depths we're looking ahead
@@ -43,63 +44,76 @@ class LazySMP(ChessEngine):
 		"""
 
 		# check if board was already evaluated
-		if board.fen() in shared_hash_table:
-			return shared_hash_table[board.fen()]
+		if (board.fen(), depth) in shared_hash_table:
+			return shared_hash_table[(board.fen(), depth)]
+			
+		if board.is_checkmate():
+			shared_hash_table[(board.fen(), depth)] = (-CHECKMATE_SCORE, None)
+			return (-CHECKMATE_SCORE, None)
+		
+		if board.is_stalemate():
+			shared_hash_table[(board.fen(), depth)] = (0, None)
+			return (0, None)
 
 		# recursion base case
 		if depth <= 0:
 			# evaluate current board
-			score = quiescence_search(board, alpha, beta)
-			shared_hash_table[board.fen()] = (score, None)
-			return score, None
+			board_score = quiescence_search(board, alpha, beta, QUIESCENCE_SEARCH_DEPTH)
+			shared_hash_table[(board.fen(), depth)] = (board_score, None)
+			return board_score, None
 
 		# null move prunning
-		if null_move and depth >= (api.R+1) and not board.is_check():
-			board.push(chess.Move.null())
-			score = -self.negamax(board, depth -1 - api.R, False, shared_hash_table, -beta, -beta+1)[0]
-			board.pop()
-			if score >= beta:
-				shared_hash_table[board.fen()] = (beta, None)
-				return beta, None
-			# board.pop()
+		if null_move and depth >= (NULL_MOVE_R+1) and not board.is_check():
+			board_score = board_evaluation(board)
+			if board_score >= beta:
+				board.push(Move.null())
+				board_score = -self.negamax(board, depth -1 - NULL_MOVE_R, False, shared_hash_table, -beta, -beta+1)[0]
+				board.pop()
+				if board_score >= beta:
+					shared_hash_table[(board.fen(), depth)] = (beta, None)
+					return beta, None
 
 		best_move = None
 
 		# initializing best_score
 		best_score = float("-inf")
+		moves = move_ordering.organize_moves(board)
 		
 		# for move in board.legal_moves:
-		for move in move_ordering.organize_moves(board):
+		for move in moves:
 			
 			# stop search if this node was already added in our hash table
 			if board.fen() in shared_hash_table:
-				return shared_hash_table[board.fen()]
+				return shared_hash_table[(board.fen(), depth)]
 
 			# make the move
 			board.push(move)
 
-			# if threefold repetition we do not analyze this position
-			if board.can_claim_threefold_repetition():
-				board.pop()  
-				continue
-
-			score = -self.negamax(board, depth-1, null_move, shared_hash_table, -beta, -alpha)[0]
+			board_score = -self.negamax(board, depth-1, null_move, shared_hash_table, -beta, -alpha)[0]
+			if board_score > CHECKMATE_THRESHOLD:
+				board_score -= 1
+			if board_score < -CHECKMATE_THRESHOLD:
+				board_score += 1
 
 			# take move back
 			board.pop()
 
+
+			# if board.fen() == "8/8/8/6k1/8/5R2/8/2K3R1 b - - 0 1":
+			# 	print(move, board_score)
+
 			# beta-cutoff
-			if score >= beta:
-				shared_hash_table[board.fen()] = (score, move)
-				return score, move
+			if board_score >= beta:
+				shared_hash_table[(board.fen(), depth)] = (board_score, move)
+				return board_score, move
 			
 			# update best move
-			if score > best_score:
-				best_score = score
+			if board_score > best_score:
+				best_score = board_score
 				best_move = move
 			
 			# setting alpha variable to do pruning
-			alpha = max(alpha, score)
+			alpha = max(alpha, board_score)
 
 			# alpha beta pruning when we already found a solution that is at least as good as the current one
 			# those branches won't be able to influence the final decision so we don't need to waste time analyzing them
@@ -114,11 +128,11 @@ class LazySMP(ChessEngine):
 				best_move = None
 
 		# add to hash table before returning
-		shared_hash_table[board.fen()] = (best_score, best_move)
+		shared_hash_table[(board.fen(), depth)] = (best_score, best_move)
 		return best_score, best_move
 
 
-	def search_move(self, board: chess.Board, depth: int, null_move: bool) -> str:
+	def search_move(self, board: Board, depth: int, null_move: bool) -> str:
 
 		# getting number of processors
 		nprocs = cpu_count()
@@ -136,12 +150,13 @@ class LazySMP(ChessEngine):
 				p.start()
 				processes.append(p)
 			
-			# wait for any process to finish
-			connection.wait([p.sentinel for p in processes])
+			# wait for all processes to finish
+			for process in processes:
+				process.join()
 
 			# close all ongoing processes
 			for p in processes:
 				p.terminate()
 			
 			# return best move for our original board
-			return shared_hash_table[board.fen()][1].uci()
+			return shared_hash_table[(board.fen(), depth)][1]

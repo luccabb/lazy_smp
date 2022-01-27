@@ -18,7 +18,7 @@ def quiescence_search(board: chess.Board, alpha: float, beta: float, depth: int)
     for move in moves:
         if board.is_capture(move):
             board.push(move)        
-            score = -quiescence_search(board, -beta, -alpha)
+            score = -quiescence_search(board, -beta, -alpha, depth-1)
             board.pop()
 
             if(score >= beta):
