@@ -122,10 +122,7 @@ class LazySMP(ChessEngine):
 
 		# if it returned no best move, we make a random one
 		if not best_move:
-			if board.legal_moves:
-				best_move = choice([move for move in board.legal_moves])
-			else:
-				best_move = None
+			best_move = self.random_move(board)
 
 		# add to hash table before returning
 		shared_hash_table[(board.fen(), depth)] = (best_score, best_move)
