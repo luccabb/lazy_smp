@@ -1,4 +1,4 @@
-import chess
+from chess import Board, Move
 from typing import Tuple, List
 from multiprocessing import cpu_count, Pool
 from l1p_alpha_beta import Layer1ParallelAlphaBeta
@@ -6,19 +6,19 @@ from l1p_alpha_beta import Layer1ParallelAlphaBeta
 
 class Layer2ParallelAlphaBeta(Layer1ParallelAlphaBeta):
 
-    def generate_board_and_moves(self, board: List[Tuple[chess.Board, chess.Move]]) -> List[Tuple[chess.Board, chess.Move]]: 
+    def generate_board_and_moves(self, board_list: List[Tuple[Board, Move]]) -> List[Tuple[Board, Move]]: 
         boards_and_moves = []
-        b, og_move = board
+        og_board, og_move = board_list
 
-        if not b.legal_moves:
-            boards_and_moves.append((b, og_move))
+        if not og_board.legal_moves:
+            boards_and_moves.append((og_board, og_move))
 
-        for move in b.legal_moves:
-            boards_and_moves.append((b, move))
+        for move in og_board.legal_moves:
+            boards_and_moves.append((og_board, move))
         return boards_and_moves
 
 
-    def search_move(self, board: chess.Board, depth: int, null_move: bool) -> str:
+    def search_move(self, board: Board, depth: int, null_move: bool) -> str:
         START_LAYER = 2
 
         # creating pool of processes

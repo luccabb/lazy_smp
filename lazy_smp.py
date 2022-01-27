@@ -1,8 +1,8 @@
 from chess import Board, Move
 from typing import Tuple, Union
-from multiprocessing import cpu_count, connection, Manager, Process
-import random  
-import move_ordering
+from multiprocessing import cpu_count, Manager, Process
+from random import choice
+from move_ordering import organize_moves
 from quiescence import quiescence_search
 from base_engine import ChessEngine
 from psqt import board_evaluation
@@ -77,7 +77,7 @@ class LazySMP(ChessEngine):
 
 		# initializing best_score
 		best_score = float("-inf")
-		moves = move_ordering.organize_moves(board)
+		moves = organize_moves(board)
 		
 		# for move in board.legal_moves:
 		for move in moves:
@@ -123,7 +123,7 @@ class LazySMP(ChessEngine):
 		# if it returned no best move, we make a random one
 		if not best_move:
 			if board.legal_moves:
-				best_move = random.choice([move for move in board.legal_moves])
+				best_move = choice([move for move in board.legal_moves])
 			else:
 				best_move = None
 

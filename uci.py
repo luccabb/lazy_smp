@@ -1,8 +1,7 @@
-import chess
-import chess.polyglot
+from chess import Board, STARTING_FEN
 import sys
 from helper import get_engine
-from constants import ALGORITHM_NAME, NULL_MOVE, DEPTH
+from constants import ALGORITHM_NAME, NULL_MOVE, NEGAMAX_DEPTH
 # UCI based on Sunfish Engine: https://github.com/thomasahle/sunfish/blob/master/uci.py
 
 
@@ -10,7 +9,7 @@ def start():
     """
     Start the command line user interface (UCI based).
     """
-    board = chess.Board()
+    board = Board()
     engine = get_engine(ALGORITHM_NAME)
     
     # keep listening to UCI commands
@@ -31,7 +30,7 @@ def start():
 
         elif uci_command == "ucinewgame":
             # start new game
-            board = chess.Board()
+            board = Board()
         
         elif uci_command.startswith("position"):
             moves_idx = uci_command.find('moves')
@@ -50,18 +49,18 @@ def start():
                 _, _, fen = fenpart.split(' ', 2)
 
             elif uci_parameters[1] == 'startpos':
-                fen = chess.STARTING_FEN
+                fen = STARTING_FEN
 
             else:
                 raise SyntaxError("UCI Syntax error.")
 
-            board = chess.Board(fen)
+            board = Board(fen)
 
             for move in moveslist:
                 board.push_uci(move)
         
         elif uci_command.startswith("go"):
-            best_move = engine(board, DEPTH, NULL_MOVE)
+            best_move = engine(board, NEGAMAX_DEPTH, NULL_MOVE)
                 
             print(f"bestmove {best_move}")
 

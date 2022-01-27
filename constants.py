@@ -12,7 +12,7 @@ Definition of search constants
 
 """
 ALGORITHM_NAME = "parallel_alpha_beta_layer_2"
-DEPTH = 3
+NEGAMAX_DEPTH = 3
 NULL_MOVE = True
 NULL_MOVE_R = 2
 CHECKMATE_SCORE = 10**8
