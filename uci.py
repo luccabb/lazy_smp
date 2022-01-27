@@ -1,13 +1,9 @@
 import chess
-from helper import get_engine
 import chess.polyglot
 import sys
+from helper import get_engine
+from constants import ALGORITHM_NAME, NULL_MOVE, DEPTH
 # UCI based on Sunfish Engine: https://github.com/thomasahle/sunfish/blob/master/uci.py
-
-# Constants
-ALGORITHM_NAME = "parallel_alpha_beta_layer_2"
-NULL_MOVE = True
-DEPTH = 3
 
 
 def start():

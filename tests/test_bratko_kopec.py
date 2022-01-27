@@ -94,7 +94,7 @@ class TestChessFunctions(unittest.TestCase):
             board = chess.Board(position)
 
             engine = get_engine(ALGORITHM_NAME)
-            result = engine.search_move(board, 3, False)
+            result = engine.search_move(board, 4, False)
             print(str(i)+':', result, type(result))
 
             if result in moves:

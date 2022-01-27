@@ -33,7 +33,7 @@ class Layer2ParallelAlphaBeta(Layer1ParallelAlphaBeta):
         arguments = [(board, move, depth-START_LAYER, null_move)
             for board, move in board_list]
 
-        parallel_layer_result = pool.starmap(self.get_black_pieces_best_move, arguments) # f7f6
+        parallel_layer_result = pool.starmap(self.get_black_pieces_best_move, arguments)
 
         parallel_layer_result.sort(key = lambda a: a[1])
         # sorting output and getting best move

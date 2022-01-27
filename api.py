@@ -6,6 +6,7 @@ from flask import Flask
 from helper import get_engine
 from typing import Dict, Any
 from multiprocessing import set_start_method
+from constants import ALGORITHM_NAME, NULL_MOVE, DEPTH
 
 
 app = Flask(__name__)
@@ -30,13 +31,6 @@ def format_response(best_move: str) -> Dict[str, Any]:
 def main_search() -> Dict[str, Any]:
 	fen = request.args.get('fen')
 	board = chess.Board(fen)
-
-	# ALGORITHM_NAME =  "alpha_beta"
-	# ALGORITHM_NAME = "parallel_alpha_beta_layer_1"
-	ALGORITHM_NAME = "parallel_alpha_beta_layer_2"
-	# ALGORITHM_NAME = "lazy_smp"
-	DEPTH = 3
-	NULL_MOVE = True
 
 	engine = get_engine(ALGORITHM_NAME)
 	
