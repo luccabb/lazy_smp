@@ -5,9 +5,7 @@ import sys
 # UCI based on Sunfish Engine: https://github.com/thomasahle/sunfish/blob/master/uci.py
 
 # Constants
-# ALGORITHM_NAME =  "alpha_beta"
 ALGORITHM_NAME = "parallel_alpha_beta_layer_2"
-# ALGORITHM_NAME = "lazy_smp"
 NULL_MOVE = True
 DEPTH = 3
 
