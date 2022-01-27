@@ -1,5 +1,6 @@
 from psqt import board_evaluation
 import chess
+from move_ordering import organize_moves_quiescence
 
 
 def quiescence_search(board: chess.Board, alpha: float, beta: float, depth: int) -> float:
@@ -13,17 +14,16 @@ def quiescence_search(board: chess.Board, alpha: float, beta: float, depth: int)
     if(alpha < stand_pat):
         alpha = stand_pat
 
-    moves = board.legal_moves
+    moves = organize_moves_quiescence(board)
 
     for move in moves:
-        if board.is_capture(move):
-            board.push(move)        
-            score = -quiescence_search(board, -beta, -alpha, depth-1)
-            board.pop()
+        board.push(move)        
+        score = -quiescence_search(board, -beta, -alpha, depth-1)
+        board.pop()
 
-            if(score >= beta):
-                return beta
-            if(score > alpha):
-                alpha = score  
+        if(score >= beta):
+            return beta
+        if(score > alpha):
+            alpha = score  
     
     return alpha

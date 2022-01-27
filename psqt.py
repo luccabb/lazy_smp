@@ -270,3 +270,44 @@ def board_evaluation(board: chess.Board) -> float:
     eval = ((mg_score * (256 - phase)) + (eg_score * phase)) / 256
 
     return eval
+
+
+def evaluate_piece(board: chess.Board, square: chess.Square, phase: float) -> float:
+
+    mg_score = 0
+    eg_score = 0
+
+    piece = board.piece_at(square)
+    if piece is not None:
+        if piece.color == chess.WHITE:
+            mg_score += MG_PESTO[piece.piece_type][63-square] + MG_PIECE_VALUES[piece.piece_type]
+            eg_score += EG_PESTO[piece.piece_type][63-square] + EG_PIECE_VALUES[piece.piece_type]
+        else:
+            mg_score += MG_PESTO[piece.piece_type][square] + MG_PIECE_VALUES[piece.piece_type]
+            eg_score += EG_PESTO[piece.piece_type][square] + EG_PIECE_VALUES[piece.piece_type]
+
+    eval = ((mg_score * (256 - phase)) + (eg_score * phase)) / 256
+
+    return eval
+
+
+def evaluate_capture(board: chess.Board, move: chess.Move, phase: float) -> float:
+
+    mg_score = 0
+    eg_score = 0
+
+    if board.is_en_passant(move):
+        capturing_piece = chess.PAWN
+        captured_piece = chess.PAWN
+        return 0
+    else:
+        capturing_piece = board.piece_at(move.from_square).piece_type
+        captured_piece = board.piece_at(move.to_square).piece_type
+
+    if capturing_piece is not None and captured_piece is not None:
+        mg_score += MG_PIECE_VALUES[captured_piece] - MG_PIECE_VALUES[capturing_piece]
+        eg_score += EG_PIECE_VALUES[captured_piece] - EG_PIECE_VALUES[capturing_piece]
+    
+    eval = ((mg_score * (256 - phase)) + (eg_score * phase)) / 256
+
+    return eval
