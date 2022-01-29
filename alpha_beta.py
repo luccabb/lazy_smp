@@ -4,7 +4,7 @@ from move_ordering import organize_moves
 from quiescence import quiescence_search
 from base_engine import ChessEngine
 from psqt import board_evaluation
-from multiprocessing import Manager
+from multiprocessing import Manager, Pool, cpu_count
 from constants import CHECKMATE_SCORE, CHECKMATE_THRESHOLD, NULL_MOVE_R, QUIESCENCE_SEARCH_DEPTH
 
 
@@ -137,4 +137,8 @@ class AlphaBeta(ChessEngine):
 
 
     def search_move(self, board: Board, depth: int, null_move: bool) -> Tuple[Union[int, Move]]:
-        return self.negamax(board, depth, null_move)[1]
+        manager = Manager()
+        # create shared hash table
+        shared_hash_table = manager.dict()
+
+        return self.negamax(board, depth, null_move, shared_hash_table)[1]
