@@ -29,7 +29,6 @@ def start():
             print("readyok")
 
         elif uci_command == "ucinewgame":
-            # start new game
             board = Board()
         
         elif uci_command.startswith("position"):
