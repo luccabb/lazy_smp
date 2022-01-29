@@ -4,11 +4,38 @@ from move_ordering import organize_moves
 from quiescence import quiescence_search
 from base_engine import ChessEngine
 from psqt import board_evaluation
+from move_ordering import organize_moves_quiescence
 from multiprocessing import Manager
 from constants import CHECKMATE_SCORE, CHECKMATE_THRESHOLD, NULL_MOVE_R, QUIESCENCE_SEARCH_DEPTH
 
 
 class AlphaBeta(ChessEngine):
+
+
+    def quiescence_search(self, board: Board, alpha: float, beta: float, depth: int) -> float:
+        stand_pat = board_evaluation(board)
+
+        if depth == 0 or board.is_checkmate():
+            return stand_pat
+        
+        if(stand_pat >= beta):
+            return beta
+        if(alpha < stand_pat):
+            alpha = stand_pat
+
+        moves = organize_moves_quiescence(board)
+
+        for move in moves:
+            board.push(move)        
+            score = -quiescence_search(board, -beta, -alpha, depth-1)
+            board.pop()
+
+            if(score >= beta):
+                return beta
+            if(score > alpha):
+                alpha = score  
+        
+        return alpha
 
 
     def negamax(
@@ -58,7 +85,7 @@ class AlphaBeta(ChessEngine):
         # recursion base case
         if depth <= 0:
             # evaluate current board
-            board_score = quiescence_search(board, alpha, beta, QUIESCENCE_SEARCH_DEPTH)
+            board_score = self.quiescence_search(board, alpha, beta, QUIESCENCE_SEARCH_DEPTH)
             shared_hash_table[(board.fen(), depth)] = (board_score, None)
             return board_score, None
 
