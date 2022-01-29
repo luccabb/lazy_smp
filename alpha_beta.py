@@ -1,7 +1,6 @@
 from chess import Board, Move
 from typing import Tuple, Union
 from move_ordering import organize_moves
-from quiescence import quiescence_search
 from base_engine import ChessEngine
 from psqt import board_evaluation
 from move_ordering import organize_moves_quiescence
