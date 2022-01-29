@@ -4,7 +4,7 @@ from move_ordering import organize_moves
 from quiescence import quiescence_search
 from base_engine import ChessEngine
 from psqt import board_evaluation
-from multiprocessing import Manager, Pool, cpu_count
+from multiprocessing import Manager
 from constants import CHECKMATE_SCORE, CHECKMATE_THRESHOLD, NULL_MOVE_R, QUIESCENCE_SEARCH_DEPTH
 
 
