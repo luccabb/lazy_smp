@@ -37,7 +37,7 @@ def main_search() -> Dict[str, Any]:
 	try:
 		best_move = polyglot.MemoryMappedReader("opening_book/cerebellum.bin").weighted_choice(board).move().uci()
 	except:
-		best_move = engine(board, NEGAMAX_DEPTH, NULL_MOVE)
+		best_move = engine.search_move(board, NEGAMAX_DEPTH, NULL_MOVE)
 	
 	return format_response(best_move)
 

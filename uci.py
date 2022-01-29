@@ -60,7 +60,7 @@ def start():
                 board.push_uci(move)
         
         elif uci_command.startswith("go"):
-            best_move = engine(board, NEGAMAX_DEPTH, NULL_MOVE)
+            best_move = engine.search_move(board, NEGAMAX_DEPTH, NULL_MOVE)
                 
             print(f"bestmove {best_move}")
 
