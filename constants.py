@@ -2,6 +2,10 @@
 Definition of search constants
 
     ALGORITHM_NAME: Algorithm to use to search move.
+        - alphabeta: alphabeta search.
+        - parallel_alpha_beta_layer_1: parallel alpha beta search from 1st ply.
+        - parallel_alpha_beta_layer_2: parallel alpha beta search from 2nd ply.
+        - lazy_smp: lazy smp search.
     DEPTH: Depth of search.
     NULL_MOVE: If True, use null move prunning.
     NULL_MOVE_R: Null move reduction factor.
@@ -12,9 +16,9 @@ Definition of search constants
 
 """
 ALGORITHM_NAME = "parallel_alpha_beta_layer_2"
-NEGAMAX_DEPTH = 3
+NEGAMAX_DEPTH = 4
 NULL_MOVE = True
 NULL_MOVE_R = 2
 CHECKMATE_SCORE = 10**8
 CHECKMATE_THRESHOLD =  999*(10**4)
-QUIESCENCE_SEARCH_DEPTH = 0
+QUIESCENCE_SEARCH_DEPTH = 2

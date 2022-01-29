@@ -1,11 +1,15 @@
 from chess import Board, Move
-from typing import Tuple, List
-from multiprocessing import cpu_count, Pool
+from typing import Tuple, List, Union
+from multiprocessing import cpu_count, Pool, Manager
 from l1p_alpha_beta import Layer1ParallelAlphaBeta
+from constants import CHECKMATE_SCORE, CHECKMATE_THRESHOLD, NULL_MOVE_R, QUIESCENCE_SEARCH_DEPTH
+from move_ordering import organize_moves
+from quiescence import quiescence_search
+from psqt import board_evaluation
 
 
 class Layer2ParallelAlphaBeta(Layer1ParallelAlphaBeta):
-
+        
     def generate_board_and_moves(self, board_list: List[Tuple[Board, Move]]) -> List[Tuple[Board, Move]]: 
         boards_and_moves = []
         og_board, og_move = board_list
@@ -16,7 +20,7 @@ class Layer2ParallelAlphaBeta(Layer1ParallelAlphaBeta):
         for move in og_board.legal_moves:
             boards_and_moves.append((og_board, move))
         return boards_and_moves
-
+    
 
     def search_move(self, board: Board, depth: int, null_move: bool) -> str:
         START_LAYER = 2
@@ -30,7 +34,11 @@ class Layer2ParallelAlphaBeta(Layer1ParallelAlphaBeta):
             arguments = [[(board, move)] for board, move in board_list]
             board_list = pool.starmap(self.generate_board_and_moves, arguments)
             board_list = [board_move for board_move in sum(board_list, [])]
-        arguments = [(board, move, depth-START_LAYER, null_move)
+
+        manager = Manager()
+        # create shared hash table
+        shared_hash_table = manager.dict()
+        arguments = [(board, move, depth-START_LAYER, null_move, shared_hash_table)
             for board, move in board_list]
 
         parallel_layer_result = pool.starmap(self.get_black_pieces_best_move, arguments)
