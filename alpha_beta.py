@@ -26,7 +26,7 @@ class AlphaBeta(ChessEngine):
 
         for move in moves:
             board.push(move)        
-            score = -quiescence_search(board, -beta, -alpha, depth-1)
+            score = -self.quiescence_search(board, -beta, -alpha, depth-1)
             board.pop()
 
             if(score >= beta):
