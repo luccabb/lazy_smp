@@ -36,6 +36,14 @@ test_get_move_score = [
 
 
 test_boards = [
+    (Board("4r2K/8/8/8/8/7r/8/3k4 w - - 0 1"), 1, [Move.from_uci('h8g7')]),
+    (Board("8/8/8/6K1/8/5r2/8/2k3r1 w - - 0 1"), 4, [Move.from_uci('g5h4')]),
+    (Board("7K/8/8/8/6Q1/8/4N3/7k w - - 0 1"), 1, [Move.from_uci('g4h3'), Move.from_uci('g4g1')]),
+    (Board("7K/8/8/8/3N4/7Q/7p/7k w - - 0 1"), 2, [Move.from_uci('h3f1')]),
+    (Board("7K/8/8/8/8/1R6/5R2/3k4 w - - 0 1"), 2, [Move.from_uci('b3b1')]),
+    (Board("7K/8/8/8/8/1R6/R7/2k5 w - - 0 1"), 3, [Move.from_uci('h8h7'), Move.from_uci('a2h2'), Move.from_uci('b3b4'), Move.from_uci('b3b5'), Move.from_uci('b3b6'), Move.from_uci('b3b7'), Move.from_uci('b3b4'), Move.from_uci('a2g2'), Move.from_uci('a2f2'), Move.from_uci('b3b8'), Move.from_uci('h8g8'), Move.from_uci('h8g7'), Move.from_uci('b3b2')]),
+    (Board("rnbqkbnr/ppppp2p/8/5pp1/4P3/8/PPPP1PPP/RNBQKBNR w KQk - 0 1"), 2, [Move.from_uci('d1h5')]),
+
     (Board("4R2k/8/8/8/8/7R/8/3K4 b - - 0 1"), 1, [Move.from_uci('h8g7')]),
     (Board("8/8/8/6k1/8/5R2/8/2K3R1 b - - 0 1"), 4, [Move.from_uci('g5h4')]),
     (Board("7k/8/8/8/6q1/8/4n3/7K b - - 0 1"), 1, [Move.from_uci('g4h3'), Move.from_uci('g4g1')]),

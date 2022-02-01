@@ -11,7 +11,13 @@ from constants import CHECKMATE_SCORE, CHECKMATE_THRESHOLD, NULL_MOVE_R, QUIESCE
 class AlphaBeta(ChessEngine):
 
 
-    def quiescence_search(self, board: Board, alpha: float, beta: float, depth: int) -> float:
+    def quiescence_search(
+        self, 
+        board: Board, 
+        alpha: float,
+        beta: float, 
+        depth: int) -> float:
+        
         stand_pat = board_evaluation(board)
 
         if depth == 0 or board.is_checkmate():
@@ -19,6 +25,7 @@ class AlphaBeta(ChessEngine):
         
         if(stand_pat >= beta):
             return beta
+
         if(alpha < stand_pat):
             alpha = stand_pat
 
@@ -31,9 +38,10 @@ class AlphaBeta(ChessEngine):
 
             if(score >= beta):
                 return beta
+
             if(score > alpha):
                 alpha = score  
-        
+
         return alpha
 
 
