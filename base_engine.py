@@ -21,4 +21,16 @@ class ChessEngine():
 
     @abstractmethod
     def search_move(self, board: Board, depth: int, null_move: bool) -> str:
-        return
+        """
+        We'll search for the best possible move in the board that we're
+        receiving up to a given depth. This
+
+        Arguments:
+            - board: chess board state.
+            - depth: maximum depth to search.
+            - null_move: if we're using null move pruning in our search.
+
+        Returns:
+            - move: the best move found.
+        """
+        raise NotImplementedError()

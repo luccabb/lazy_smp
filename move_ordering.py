@@ -15,9 +15,6 @@ def organize_moves(board: chess.Board):
 	Returns:
 		- legal_moves: list of all the possible moves for the current player.
 	"""
-	# moves = [l for l in board.legal_moves]
-	# random.shuffle(moves)
-	# return moves
 	non_captures = []
 	captures = []
 
@@ -44,12 +41,28 @@ def organize_moves_quiescence(board: chess.Board):
 		- moves: list of all the possible moves for the current player sorted based on importance.
 	"""
 	phase = get_phase(board)
+	# filter only important moves for quiescence search
 	captures = filter(lambda move: board.is_zeroing(move) or board.gives_check(move), board.legal_moves)
+	# sort moves by importance
 	moves = sorted(captures, key=lambda move: mvv_lva(board, move, phase), reverse=(True if board.turn == chess.BLACK else False))
 	return moves
 
 
-def mvv_lva(board: chess.Board, move: chess.Move, phase: float):
+def mvv_lva(board: chess.Board, move: chess.Move, phase: float) -> float:
+	"""
+	This function receives a board and a move and it returns the
+	move's value based on the phase of the game. It's based on the
+	idea that the most valuable victim being captured by the least
+	valuable attacker is the best move.
+
+	Arguments:
+		- board: chess board state
+		- move: chess move
+		- phase: current phase of the game
+
+	Returns:
+		- mvv_lva: value of the move
+	"""
 	move_value = 0
 
 	# evaluating position 
