@@ -1,12 +1,13 @@
-from chess import Board, polyglot
-from flask import request
-from flask_cors import CORS, cross_origin
-from flask import Flask
-from helper import get_engine
-from typing import Dict, Any
-from multiprocessing import set_start_method
-from constants import ALGORITHM_NAME, NULL_MOVE, NEGAMAX_DEPTH
 import ast
+from multiprocessing import set_start_method
+from typing import Any, Dict
+
+from chess import Board, polyglot
+from flask import Flask, request
+from flask_cors import CORS, cross_origin
+
+from constants import ALGORITHM_NAME, NEGAMAX_DEPTH, NULL_MOVE
+from helper import get_engine
 
 
 app = Flask(__name__)

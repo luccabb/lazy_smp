@@ -1,6 +1,7 @@
 from abc import abstractmethod
-from chess import Board
 from random import choice
+
+from chess import Board
 
 
 class ChessEngine():

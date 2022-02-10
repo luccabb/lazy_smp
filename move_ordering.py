@@ -1,6 +1,9 @@
-import chess
 import random
-from psqt import get_phase, evaluate_piece, evaluate_capture
+
+import chess
+
+from psqt import evaluate_capture, evaluate_piece, get_phase
+
 
 def organize_moves(board: chess.Board):
 	"""

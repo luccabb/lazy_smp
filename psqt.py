@@ -1,5 +1,6 @@
-import chess
 from typing import Tuple
+
+import chess
 
 
 ############

@@ -1,7 +1,10 @@
-from chess import Board, STARTING_FEN
 import sys
+
+from chess import STARTING_FEN, Board
+
+from constants import ALGORITHM_NAME, NEGAMAX_DEPTH, NULL_MOVE
 from helper import get_engine
-from constants import ALGORITHM_NAME, NULL_MOVE, NEGAMAX_DEPTH
+
 # UCI based on Sunfish Engine: https://github.com/thomasahle/sunfish/blob/master/uci.py
 
 

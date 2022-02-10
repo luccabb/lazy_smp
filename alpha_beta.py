@@ -1,11 +1,13 @@
-from chess import Board, Move
-from typing import Tuple, Union
-from move_ordering import organize_moves
-from base_engine import ChessEngine
-from psqt import board_evaluation
-from move_ordering import organize_moves_quiescence
 from multiprocessing import Manager
-from constants import CHECKMATE_SCORE, CHECKMATE_THRESHOLD, NULL_MOVE_R, QUIESCENCE_SEARCH_DEPTH
+from typing import Tuple, Union
+
+from chess import Board, Move
+
+from base_engine import ChessEngine
+from constants import (CHECKMATE_SCORE, CHECKMATE_THRESHOLD, NULL_MOVE_R,
+                       QUIESCENCE_SEARCH_DEPTH)
+from move_ordering import organize_moves, organize_moves_quiescence
+from psqt import board_evaluation
 
 
 class AlphaBeta(ChessEngine):

@@ -1,7 +1,8 @@
 import unittest
+
 from chess import Board, Move
-from parameterized import parameterized
 from helper import get_engine
+from parameterized import parameterized
 
 
 test_count_pieces = [

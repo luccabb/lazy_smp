@@ -1,5 +1,7 @@
+from multiprocessing import Manager, Pool, cpu_count
+
 import chess
-from multiprocessing import cpu_count, Pool, Manager
+
 from alpha_beta import AlphaBeta
 
 

@@ -1,8 +1,9 @@
 from enum import Enum
-from lazy_smp import LazySMP
+
 from alpha_beta import AlphaBeta
 from l1p_alpha_beta import Layer1ParallelAlphaBeta
 from l2p_alpha_beta import Layer2ParallelAlphaBeta
+from lazy_smp import LazySMP
 
 
 class Algorithm(Enum):

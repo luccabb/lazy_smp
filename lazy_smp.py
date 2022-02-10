@@ -1,5 +1,7 @@
+from multiprocessing import Manager, Pool, cpu_count
+
 from chess import Board
-from multiprocessing import cpu_count, Manager, Pool
+
 from alpha_beta import AlphaBeta
 
 
@@ -7,6 +9,10 @@ class LazySMP(AlphaBeta):
 
 
     def search_move(self, board: Board, depth: int, null_move: bool) -> str:
+        """
+        
+        
+        """
 
         # getting number of processors
         nprocs = cpu_count()

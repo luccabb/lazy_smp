@@ -1,7 +1,8 @@
 import unittest
+
 from chess import Board, Move
+from constants import ALGORITHM_NAME, NEGAMAX_DEPTH, NULL_MOVE
 from helper import get_engine
-from constants import ALGORITHM_NAME, NULL_MOVE, NEGAMAX_DEPTH
 
 
 POSITIONS = [

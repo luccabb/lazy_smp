@@ -1,5 +1,6 @@
-from uci import start
 import multiprocessing
+
+from uci import start
 
 multiprocessing.freeze_support()
 start()
