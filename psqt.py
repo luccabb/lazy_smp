@@ -274,7 +274,18 @@ def board_evaluation(board: chess.Board) -> float:
 
 
 def evaluate_piece(board: chess.Board, square: chess.Square, phase: float) -> float:
+    """
+    Evaluates a piece on a given square.
 
+    Arguments:
+        - board: current board state.
+        - square: square to evaluate.
+        - phase: current phase of the game.
+
+    Returns:
+        - value(float): float representing
+        current value for this piece on this square.
+    """
     mg_score = 0
     eg_score = 0
 
@@ -293,7 +304,18 @@ def evaluate_piece(board: chess.Board, square: chess.Square, phase: float) -> fl
 
 
 def evaluate_capture(board: chess.Board, move: chess.Move, phase: float) -> float:
+    """
+    Evaluates a capture move based phase of the game.
 
+    Arguments:
+        - board: current board state.
+        - move: move to evaluate.
+        - phase: current phase of the game.
+
+    Returns:
+        - value(float): float representing
+        value for this capture.
+    """
     mg_score = 0
     eg_score = 0
 

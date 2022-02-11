@@ -9,11 +9,6 @@ class LazySMP(AlphaBeta):
 
 
     def search_move(self, board: Board, depth: int, null_move: bool) -> str:
-        """
-        
-        
-        """
-
         # getting number of processors
         nprocs = cpu_count()
         pool = Pool(processes=nprocs)

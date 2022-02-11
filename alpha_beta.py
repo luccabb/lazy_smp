@@ -11,6 +11,11 @@ from psqt import board_evaluation
 
 
 class AlphaBeta(ChessEngine):
+    """
+    A class that implements alpha-beta search algorithm.
+
+    
+    """
 
 
     def quiescence_search(
@@ -19,6 +24,23 @@ class AlphaBeta(ChessEngine):
         alpha: float,
         beta: float, 
         depth: int) -> float:
+        """
+        This functions extends our search for important 
+        positions (such as: captures, pawn moves, promotions),
+        by using a reduced search tree.
+
+        Arguments:
+            - board: chess board state
+            - alpha: best score for the maximizing player (best choice (highest value)  we've found
+            along the path for max)
+            - beta: best score for the minimizing player (best choice (lowest value) we've found
+            along the path for min). When Alpha is higher than or equal to Beta, we can prune the search tree;
+            because it means that the maximizing player won't find a better move in this branch.
+            - depth: how many depths we want to calculate for this board
+        
+        Returns:
+            - best_score: returns best move's score.
+        """
         
         stand_pat = board_evaluation(board)
 

@@ -7,6 +7,7 @@ from lazy_smp import LazySMP
 
 
 class Algorithm(Enum):
+    """Algorithm enum."""
     alpha_beta = "alpha_beta"
     parallel_alpha_beta_layer_1 = "parallel_alpha_beta_layer_1"
     parallel_alpha_beta_layer_2 = "parallel_alpha_beta_layer_2"
@@ -14,6 +15,15 @@ class Algorithm(Enum):
 
 
 def get_engine(algorithm_name: Algorithm):
+    """
+    Returns the engine
+
+    Arguments:
+        - algorithm_name: the name of the algorithm we want to use.
+
+    Returns:
+        - engine: the engine we want to use.
+    """
     algorithm_name = Algorithm[algorithm_name]
 
     if algorithm_name is Algorithm.alpha_beta:
