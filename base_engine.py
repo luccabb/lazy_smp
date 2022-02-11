@@ -5,6 +5,15 @@ from chess import Board
 
 
 class ChessEngine():
+    """
+    A class to represent a chess engine.
+
+    Methods:
+        - random_move: returns a random move from the list of legal moves.
+        - search_move: returns the best move for 
+        the current board based on how many depths 
+        we're looking ahead.
+    """
 
     def random_move(self, board: Board):
         """
