@@ -95,7 +95,13 @@ class AlphaBeta(ChessEngine):
         Arguments: 
             - board: chess board state
             - depth: how many depths we want to calculate for this board
-            - player: player that is currently moving pieces. 1 for AI (max), -1 for human (min).
+            - null_move: if we want to use null move pruning
+            - shared_hash_table: a shared hash table to store the best 
+                move for each board state and depth.
+            - alpha: best score for the maximizing player (best choice 
+                (highest value)  we've found along the path for max)
+            - beta: best score for the minimizing player (best choice
+                (lowest value) we've found along the path for min). 
 
         Returns:
             - best_score, best_move: returns best move that it found and its value.
