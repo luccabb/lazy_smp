@@ -1,4 +1,6 @@
+# XPB Engine (~2000 Elo Rating Lichess.org)
 
+Didatic Python Chess Engine
 ## Requirements
 
 ```
