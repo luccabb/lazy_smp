@@ -25,7 +25,7 @@ class Layer1ParallelAlphaBeta(AlphaBeta):
         arguments = []
         for move in moves:
             board.push(move)
-            arguments.append((copy(board), depth, null_move, shared_hash_table))
+            arguments.append((copy(board), depth-1, null_move, shared_hash_table))
             board.pop()
         
         # executing all the moves at layer 1 in parallel

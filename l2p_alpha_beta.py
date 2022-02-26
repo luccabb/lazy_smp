@@ -81,6 +81,7 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
         nprocs = cpu_count()
         pool = Pool(processes=nprocs)
         manager = Manager()
+        shared_hash_table = manager.dict()
 
         # pointer that help us in finding the best next move
         board_to_move_that_generates_it = manager.dict()
@@ -95,7 +96,6 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
             board_list = [board for board in sum(board_list, [])]
         
         # negamax arguments
-        shared_hash_table = manager.dict()
         arguments = [(board, depth-START_LAYER, null_move, shared_hash_table)
             for board, _, _ in board_list]
 
