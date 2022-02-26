@@ -44,6 +44,7 @@ test_boards = [
     (Board("7K/8/8/8/8/1R6/5R2/3k4 w - - 0 1"), 2, [Move.from_uci('b3b1')]),
     (Board("7K/8/8/8/8/1R6/R7/2k5 w - - 0 1"), 3, [Move.from_uci('h8h7'), Move.from_uci('a2h2'), Move.from_uci('b3b4'), Move.from_uci('b3b5'), Move.from_uci('b3b6'), Move.from_uci('b3b7'), Move.from_uci('b3b4'), Move.from_uci('a2g2'), Move.from_uci('a2f2'), Move.from_uci('b3b8'), Move.from_uci('h8g8'), Move.from_uci('h8g7'), Move.from_uci('b3b2')]),
     (Board("rnbqkbnr/ppppp2p/8/5pp1/4P3/8/PPPP1PPP/RNBQKBNR w KQk - 0 1"), 2, [Move.from_uci('d1h5')]),
+    (Board("r3r3/3Q2P1/k2p4/B2P4/8/P2N4/1PP2K1P/2R5 w - - 0 1"), 3, [Move.from_uci('d7c6')]),
 
     (Board("4R2k/8/8/8/8/7R/8/3K4 b - - 0 1"), 1, [Move.from_uci('h8g7')]),
     (Board("8/8/8/6k1/8/5R2/8/2K3R1 b - - 0 1"), 4, [Move.from_uci('g5h4')]),
@@ -52,6 +53,7 @@ test_boards = [
     (Board("7k/8/8/8/8/1r6/5r2/3K4 b - - 0 1"), 2, [Move.from_uci('b3b1')]),
     (Board("7k/8/8/8/8/1r6/r7/2K5 b - - 0 1"), 3, [Move.from_uci('h8h7'), Move.from_uci('a2h2'), Move.from_uci('b3b4'), Move.from_uci('b3b5'), Move.from_uci('b3b6'), Move.from_uci('b3b7'), Move.from_uci('b3b4'), Move.from_uci('a2g2'), Move.from_uci('a2f2'), Move.from_uci('b3b8'), Move.from_uci('h8g8'), Move.from_uci('h8g7'), Move.from_uci('b3b2')]),
     (Board("rnbqkbnr/pppp1ppp/8/4p3/5PP1/8/PPPPP2P/RNBQKBNR b KQkq - 0 1"), 2, [Move.from_uci('d8h4')]),
+    (Board("2r5/1pp2k1p/p2n4/8/b2p4/K2P4/3q2p1/R3R3 b - - 0 1"), 3, [Move.from_uci('d2c3')])
 ]
 
 class Testunctions(unittest.TestCase):
