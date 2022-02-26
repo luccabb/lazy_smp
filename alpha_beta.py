@@ -180,29 +180,13 @@ class AlphaBeta(ChessEngine):
             if alpha >= beta:
                 break
 
-        # if it returned no best move, we make a random one
+        # if no best move, make a random one
         if not best_move:
             best_move = self.random_move(board)
 
-        # add to hash table before returning
+        # save result before returning
         shared_hash_table[(board.fen(), depth)] = (best_score, best_move)
         return best_score, best_move
-
-
-    def get_black_pieces_best_move(self, board: Board, move: Move, depth: int, null_move: bool, shared_hash_table: Manager) -> Tuple[Union[int, Move]]:
-        # make move
-        board.push(move)
-
-        if board.is_checkmate():
-            board.pop()
-            return board, -CHECKMATE_SCORE*2, move
-
-        value = self.negamax(board, depth-1, null_move, shared_hash_table)[0]
-
-        # remove move
-        board.pop()
-
-        return board, value, move
 
 
     def search_move(self, board: Board, depth: int, null_move: bool) -> Tuple[Union[int, Move]]:

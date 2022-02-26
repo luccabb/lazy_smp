@@ -1,13 +1,12 @@
+from collections import defaultdict
+from copy import copy
 from multiprocessing import Manager, Pool, cpu_count
 from typing import List, Tuple
-from copy import copy
-from collections import defaultdict
 
 from chess import Board, Move
 
 from alpha_beta import AlphaBeta
-from constants import (CHECKMATE_THRESHOLD)
-
+from constants import CHECKMATE_THRESHOLD
 
 LAYER_SIGNAL_CORRECTION = lambda data: data if data[3] == 2 else (-data[0], *data[1:])
 CHECKMATE_CORRECTION = lambda data: (data[0]+1, *data[1:]) if (data[0] > CHECKMATE_THRESHOLD and data[3] == 1) else data
@@ -15,9 +14,8 @@ CHECKMATE_CORRECTION = lambda data: (data[0]+1, *data[1:]) if (data[0] > CHECKMA
 
 class Layer2ParallelAlphaBeta(AlphaBeta):
     """
-    This class inherits from AlphaBeta and implements
-    a search that is parallelized starting from the second
-    layer.
+    This class implements a parallel search 
+    algorithm starting from the second layer.
     """
 
 

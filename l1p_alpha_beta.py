@@ -1,3 +1,4 @@
+from copy import copy
 from multiprocessing import Manager, Pool, cpu_count
 
 import chess
@@ -6,24 +7,37 @@ from alpha_beta import AlphaBeta
 
 
 class Layer1ParallelAlphaBeta(AlphaBeta):
+    """
+    This class implements a parallel search 
+    algorithm starting from the first layer.
+    """
     
     def search_move(self, board: chess.Board, depth: int, null_move: bool) -> str:
-        # creating pool of processes
         nprocs = cpu_count()
         pool = Pool(processes=nprocs)
-
         manager = Manager()
-        # create shared hash table
+
+        # hash table to save intermediate results
         shared_hash_table = manager.dict()
+
         # creating list of moves at layer 1
-        arguments = [(board, move, depth, null_move, shared_hash_table) for move in board.legal_moves]
+        moves = list(board.legal_moves)
+        arguments = []
+        for move in moves:
+            board.push(move)
+            arguments.append((copy(board), depth, null_move, shared_hash_table))
+            board.pop()
+        
         # executing all the moves at layer 1 in parallel
         # starmap blocks until all process are done
-        result = pool.starmap(self.get_black_pieces_best_move, arguments)
+        result = pool.starmap(self.negamax, arguments)
 
-        result = sorted(result, key = lambda a: a[1])
+        # inserting move information in the results
+        for i in range(len(result)):
+            result[i] = (*result[i], moves[i])
 
-        # sorting output and getting best move
+        # sorting results and getting best move
+        result.sort(key = lambda a: a[0])
         best_move = result[0][2]
 
         return best_move
