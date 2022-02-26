@@ -41,10 +41,15 @@ class AlphaBeta(ChessEngine):
         Returns:
             - best_score: returns best move's score.
         """
+        if board.is_stalemate():
+            return 0
+
+        if board.is_checkmate():
+            return -CHECKMATE_SCORE
         
         stand_pat = board_evaluation(board)
 
-        if depth == 0 or board.is_checkmate():
+        if depth == 0:
             return stand_pat
         
         if(stand_pat >= beta):
