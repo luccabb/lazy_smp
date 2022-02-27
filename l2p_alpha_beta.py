@@ -113,7 +113,7 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
         best_boards = []
 
         for group in groups.values():
-            # layer and checkmate correections
+            # layer and checkmate corrections
             # they are needed to adjust for 
             # boards from different layers
             group = list(map(LAYER_SIGNAL_CORRECTION, group))
