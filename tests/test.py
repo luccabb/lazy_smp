@@ -5,37 +5,6 @@ from helper import get_engine
 from parameterized import parameterized
 
 
-test_count_pieces = [
-    (Board("rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 1"), (16, 16)),
-    (Board("rnbqkbnr/pppppppp/8/8/8/8/PPP1PPPP/RNBQKBNR w KQkq - 0 1"), (16, 15)),
-    (Board("2b1k1n1/p3p1pp/1PP5/1Nr2P2/1p1p1p2/2b4B/P1PQP2P/R1B1K1NR w KQ - 0 1"), (12, 15)),
-    (Board("4k3/7p/8/8/8/8/8/R3K1NR w KQ - 0 1"), (2, 4)),
-    (Board("4k3/8/8/8/8/8/8/4K3 w - - 0 1"), (1, 1)),
-    (Board("8/8/8/8/8/8/8/8 w - - 0 1"), (0, 0)),
-]
-
-
-test_board_value = [
-    (Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"), 0),
-    (Board("rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 1"), -0.07),
-    (Board("rnbqkbnr/pppppppp/8/8/8/8/PPP1PPPP/RNBQKBNR w KQkq - 0 1"), +2.00),
-    (Board("2b1k1n1/p3p1pp/1PP5/1Nr2P2/1p1p1p2/2b4B/P1PQP2P/R1B1K1NR w KQ - 0 1"), -43.87),
-    (Board("4k3/7p/8/8/8/8/8/R3K1NR w KQ - 0 1"), -34.00),
-    (Board("4k3/8/8/8/8/8/8/4K3 w - - 0 1"), 0.00),
-    (Board("8/8/8/8/8/8/8/8 w - - 0 1"), 0.00),
-]
-
-
-test_get_move_score = [
-    (Board("4R2k/8/8/8/8/7R/8/3K4 b - - 0 1"), 1, True, [Move.from_uci('h8g7')]),
-    (Board("4R2k/8/8/8/8/7R/8/3K4 w - - 0 1"), 1, False, [Move.from_uci('e8h8')]),
-    (Board("7k/8/8/8/3n4/7q/8/7K b - - 0 1"), 2, True, [Move.from_uci('d4f3')]),
-    (Board("7k/8/8/8/8/1r6/r7/2K5 b - - 0 1"), 3, True, [Move.from_uci('a2f2'), Move.from_uci('h8g8'), Move.from_uci('h8g7'), Move.from_uci('b3b2')]),
-    (Board("rnbqkbnr/pppp1ppp/8/4p3/5PP1/8/PPPPP2P/RNBQKBNR b KQkq - 0 1"), 2, True, [Move.from_uci('d8h4')]),
-    (Board("rnb1k1nr/ppp2ppp/3b4/8/8/2N3q1/PPPPP2P/R1BQKBNR w KQkq - 0 1"), 3, False, [Move.from_uci('h2g3')]),
-]
-
-
 test_boards = [
     (Board("4r2K/8/8/8/8/7r/8/3k4 w - - 0 1"), 1, [Move.from_uci('h8g7')]),
     (Board("8/8/8/6K1/8/5r2/8/2k3r1 w - - 0 1"), 4, [Move.from_uci('g5h4')]),
