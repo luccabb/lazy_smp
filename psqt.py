@@ -253,6 +253,7 @@ def board_evaluation(board: chess.Board) -> float:
         chess.BLACK: 0,
     }
 
+    # loop through all squares and sum their piece values for both sides
     for square in range(64):
         piece = board.piece_at(square)
         if piece is not None:
@@ -263,6 +264,7 @@ def board_evaluation(board: chess.Board) -> float:
                 mg[piece.color] += MG_PESTO[piece.piece_type][square] + MG_PIECE_VALUES[piece.piece_type]
                 eg[piece.color] += EG_PESTO[piece.piece_type][square] + EG_PIECE_VALUES[piece.piece_type]
     
+    # calculate board score based on phase
     mg_score = mg[board.turn] - mg[not board.turn]
     eg_score = eg[board.turn] - eg[not board.turn]
     eval = ((mg_score * (256 - phase)) + (eg_score * phase)) / 256
@@ -286,6 +288,7 @@ def evaluate_piece(board: chess.Board, square: chess.Square, phase: float) -> fl
     mg_score = 0
     eg_score = 0
 
+    # get mid and end game score for single piece
     piece = board.piece_at(square)
     if piece is not None:
         if piece.color == chess.WHITE:
@@ -295,8 +298,8 @@ def evaluate_piece(board: chess.Board, square: chess.Square, phase: float) -> fl
             mg_score += MG_PESTO[piece.piece_type][square] + MG_PIECE_VALUES[piece.piece_type]
             eg_score += EG_PESTO[piece.piece_type][square] + EG_PIECE_VALUES[piece.piece_type]
 
+    # evaluate piece value based on phase
     eval = ((mg_score * (256 - phase)) + (eg_score * phase)) / 256
-
     return eval
 
 
@@ -317,17 +320,17 @@ def evaluate_capture(board: chess.Board, move: chess.Move, phase: float) -> floa
     eg_score = 0
 
     if board.is_en_passant(move):
-        capturing_piece = chess.PAWN
-        captured_piece = chess.PAWN
         return 0
     else:
         capturing_piece = board.piece_at(move.from_square).piece_type
         captured_piece = board.piece_at(move.to_square).piece_type
 
+    # get mid and end game difference of scores between captured 
+    # and capturing piece
     if capturing_piece is not None and captured_piece is not None:
         mg_score += MG_PIECE_VALUES[captured_piece] - MG_PIECE_VALUES[capturing_piece]
         eg_score += EG_PIECE_VALUES[captured_piece] - EG_PIECE_VALUES[capturing_piece]
     
+    # evaluate capture based on game's phase
     eval = ((mg_score * (256 - phase)) + (eg_score * phase)) / 256
-
     return eval
