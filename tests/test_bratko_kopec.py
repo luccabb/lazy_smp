@@ -33,74 +33,18 @@ POSITIONS = [
 ]
 
 class TestChessFunctions(unittest.TestCase):
-    def test_negamax(self):
-        """
-        Engine version: parallel alpha beta, null_move, psqt (with tapered evaluation).
-        Results for Bratko-Kopec test cases:
-
-        depth | null_move | score | time
-        6 | true | 4 | 2074.589 s
-        6 | false | 6 | 3594.249 s
-        5 | true | 3 | 361.940 s
-        5 | false | 3 | 542.893 s
-        4 | true | 1 | 47.956 s
-        4 | false | 1 | 53.158 s
-        3 | true | 3 | 7.496 s
-        3 | false |  3 | 7.614 s
-
-        Engine version: Lazy SMP, null_move, psqt (with tapered evaluation).
-        Results for Bratko-Kopec test cases:
-
-        depth | null_move | score | time
-        # 6 | true | 4 | 2074.589 s
-        6 | false | 8 | 18935.249 s
-        5 | true | 3 | 2119.793 s
-        5 | false | 3 | 2920.879 s
-        4 | true | 2 | 318.830 s
-        4 | false | 1 | 333.154 s
-        3 | true | 3 | 44.176 s
-        3 | false |  3 | 51.164 s
-
-        Engine version: Parallel Alpha-Beta Layer 2, null_move, psqt (with tapered evaluation).
-        Results for Bratko-Kopec test cases:
-
-        depth | null_move | score | time
-        # 6 | true | 4 | 2074.589 s
-        # 6 | false | 8 | 18935.249 s
-        5 | true | 2 | 3353.040 s
-        # 5 | false | 3 | 2920.879 s
-        4 | true | 2 | 286.547s s
-        4 | false | 2 | 296.157 s
-        3 | true | 2 | 14.578 s
-        3 | false | 2 | 16.503 s
-
-        Engine version: Parallel Alpha-Beta Layer 2, quiesce, null_move, 
-        psqt (with tapered evaluation).
-        Results for Bratko-Kopec test cases:
-
-        depth | null_move | score | time
-        # 6 | true | 4 | 2074.589 s
-        # 6 | false | 8 | 18935.249 s
-        5 | true | 2 | 3395.183 s
-        5 | false | 2 | 3524.392 s
-        4 | true | 2 | 275.934 s
-        4 | false | 2 | 278.325 s
-        3 | true | 2 | 17.765 s
-        3 | false | 2 | 18.147 s
-        """
+    def test_bratko_kopec(self):
 
         correct = 0
-        i = 0
-        for position, moves in POSITIONS:
+        for i, (position, moves) in enumerate(POSITIONS):
             board = Board(position)
 
             engine = get_engine(ALGORITHM_NAME)
             result = engine.search_move(board, NEGAMAX_DEPTH, NULL_MOVE)
-            print(str(i)+':', result, type(result))
+            print(str(i)+':', result)
 
             if result in moves:
                 correct += 1
-            i += 1
         
         print("Correct Moves: {} of {}".format(correct, len(POSITIONS)))
 
