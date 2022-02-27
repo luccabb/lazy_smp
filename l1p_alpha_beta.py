@@ -13,19 +13,18 @@ class Layer1ParallelAlphaBeta(AlphaBeta):
     """
     
     def search_move(self, board: chess.Board, depth: int, null_move: bool) -> str:
+        # start multiprocessing
         nprocs = cpu_count()
         pool = Pool(processes=nprocs)
         manager = Manager()
-
-        # hash table to save intermediate results
-        shared_hash_table = manager.dict()
+        shared_cache = manager.dict()
 
         # creating list of moves at layer 1
         moves = list(board.legal_moves)
         arguments = []
         for move in moves:
             board.push(move)
-            arguments.append((copy(board), depth-1, null_move, shared_hash_table))
+            arguments.append((copy(board), depth-1, null_move, shared_cache))
             board.pop()
         
         # executing all the moves at layer 1 in parallel

@@ -76,12 +76,11 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
         depth: int, 
         null_move: bool) -> str:
         START_LAYER = 2
-
-        # creating pool of processes
+        # start multiprocessing
         nprocs = cpu_count()
         pool = Pool(processes=nprocs)
         manager = Manager()
-        shared_hash_table = manager.dict()
+        shared_cache = manager.dict()
 
         # pointer that help us in finding the best next move
         board_to_move_that_generates_it = manager.dict()
@@ -96,7 +95,7 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
             board_list = [board for board in sum(board_list, [])]
         
         # negamax arguments
-        arguments = [(board, depth-START_LAYER, null_move, shared_hash_table)
+        arguments = [(board, depth-START_LAYER, null_move, shared_cache)
             for board, _, _ in board_list]
 
         parallel_layer_result = pool.starmap(self.negamax, arguments)

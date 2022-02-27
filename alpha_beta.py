@@ -47,25 +47,32 @@ class AlphaBeta(ChessEngine):
         
         stand_pat = board_evaluation(board)
 
+        # recursion base case
         if depth == 0:
             return stand_pat
         
+        # beta-cutoff
         if(stand_pat >= beta):
             return beta
 
+        # alpha update
         if(alpha < stand_pat):
             alpha = stand_pat
 
+        # get moves for quiescence search
         moves = organize_moves_quiescence(board)
 
         for move in moves:
-            board.push(move)        
+            # make move and get score
+            board.push(move)
             score = -self.quiescence_search(board, -beta, -alpha, depth-1)
             board.pop()
 
+            # beta-cutoff
             if(score >= beta):
                 return beta
-
+            
+            # alpha-update
             if(score > alpha):
                 alpha = score  
 
@@ -77,7 +84,7 @@ class AlphaBeta(ChessEngine):
         board: Board, 
         depth: int, 
         null_move: bool,
-        shared_hash_table: Manager,
+        cache: Manager,
         alpha: float = float("-inf"), 
         beta: float = float("inf")) -> Tuple[Union[int, Move]]:
         """
@@ -99,7 +106,7 @@ class AlphaBeta(ChessEngine):
             - board: chess board state
             - depth: how many depths we want to calculate for this board
             - null_move: if we want to use null move pruning
-            - shared_hash_table: a shared hash table to store the best 
+            - cache: a shared hash table to store the best 
                 move for each board state and depth.
             - alpha: best score for the maximizing player (best choice 
                 (highest value)  we've found along the path for max)
@@ -111,22 +118,22 @@ class AlphaBeta(ChessEngine):
         """
 
         # check if board was already evaluated
-        if (board.fen(), depth) in shared_hash_table:
-            return shared_hash_table[(board.fen(), depth)]
+        if (board.fen(), depth) in cache:
+            return cache[(board.fen(), depth)]
             
         if board.is_checkmate():
-            shared_hash_table[(board.fen(), depth)] = (-CHECKMATE_SCORE, None)
+            cache[(board.fen(), depth)] = (-CHECKMATE_SCORE, None)
             return (-CHECKMATE_SCORE, None)
         
         if board.is_stalemate():
-            shared_hash_table[(board.fen(), depth)] = (0, None)
+            cache[(board.fen(), depth)] = (0, None)
             return (0, None)
 
         # recursion base case
         if depth <= 0:
             # evaluate current board
             board_score = self.quiescence_search(board, alpha, beta, QUIESCENCE_SEARCH_DEPTH)
-            shared_hash_table[(board.fen(), depth)] = (board_score, None)
+            cache[(board.fen(), depth)] = (board_score, None)
             return board_score, None
 
         # null move prunning
@@ -134,10 +141,10 @@ class AlphaBeta(ChessEngine):
             board_score = board_evaluation(board)
             if board_score >= beta:
                 board.push(Move.null())
-                board_score = -self.negamax(board, depth -1 - NULL_MOVE_R, False, shared_hash_table, -beta, -beta+1)[0]
+                board_score = -self.negamax(board, depth -1 - NULL_MOVE_R, False, cache, -beta, -beta+1)[0]
                 board.pop()
                 if board_score >= beta:
-                    shared_hash_table[(board.fen(), depth)] = (beta, None)
+                    cache[(board.fen(), depth)] = (beta, None)
                     return beta, None
 
         best_move = None
@@ -147,11 +154,10 @@ class AlphaBeta(ChessEngine):
         moves = organize_moves(board)
         
         for move in moves:
-
             # make the move
             board.push(move)
 
-            board_score = -self.negamax(board, depth-1, null_move, shared_hash_table, -beta, -alpha)[0]
+            board_score = -self.negamax(board, depth-1, null_move, cache, -beta, -alpha)[0]
             if board_score > CHECKMATE_THRESHOLD:
                 board_score -= 1
             if board_score < -CHECKMATE_THRESHOLD:
@@ -162,7 +168,7 @@ class AlphaBeta(ChessEngine):
 
             # beta-cutoff
             if board_score >= beta:
-                shared_hash_table[(board.fen(), depth)] = (board_score, move)
+                cache[(board.fen(), depth)] = (board_score, move)
                 return board_score, move
             
             # update best move
@@ -183,13 +189,13 @@ class AlphaBeta(ChessEngine):
             best_move = self.random_move(board)
 
         # save result before returning
-        shared_hash_table[(board.fen(), depth)] = (best_score, best_move)
+        cache[(board.fen(), depth)] = (best_score, best_move)
         return best_score, best_move
 
 
     def search_move(self, board: Board, depth: int, null_move: bool) -> Tuple[Union[int, Move]]:
+        # create shared cache
         manager = Manager()
-        # create shared hash table
-        shared_hash_table = manager.dict()
+        cache = manager.dict()
 
-        return self.negamax(board, depth, null_move, shared_hash_table)[1]
+        return self.negamax(board, depth, null_move, cache)[1]
