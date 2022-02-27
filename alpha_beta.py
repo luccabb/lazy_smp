@@ -13,8 +13,6 @@ from psqt import board_evaluation
 class AlphaBeta(ChessEngine):
     """
     A class that implements alpha-beta search algorithm.
-
-    
     """
 
 
