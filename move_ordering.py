@@ -1,11 +1,11 @@
 import random
 
-import chess
+from chess import Board, Move, BLACK
 
 from psqt import evaluate_capture, evaluate_piece, get_phase
 
 
-def organize_moves(board: chess.Board):
+def organize_moves(board: Board):
 	"""
 	This function receives a board and it returns a list of all the
 	possible moves for the current player, sorted by importance.
@@ -32,7 +32,7 @@ def organize_moves(board: chess.Board):
 	return captures + non_captures
 
 
-def organize_moves_quiescence(board: chess.Board):
+def organize_moves_quiescence(board: Board):
 	"""
 	This function receives a board and it returns a list of all the
 	possible moves for the current player, sorted by importance.
@@ -47,11 +47,11 @@ def organize_moves_quiescence(board: chess.Board):
 	# filter only important moves for quiescence search
 	captures = filter(lambda move: board.is_zeroing(move) or board.gives_check(move), board.legal_moves)
 	# sort moves by importance
-	moves = sorted(captures, key=lambda move: mvv_lva(board, move, phase), reverse=(True if board.turn == chess.BLACK else False))
+	moves = sorted(captures, key=lambda move: mvv_lva(board, move, phase), reverse=(True if board.turn == BLACK else False))
 	return moves
 
 
-def mvv_lva(board: chess.Board, move: chess.Move, phase: float) -> float:
+def mvv_lva(board: Board, move: Move, phase: float) -> float:
 	"""
 	This function receives a board and a move and it returns the
 	move's value based on the phase of the game. It's based on the

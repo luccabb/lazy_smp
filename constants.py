@@ -2,7 +2,7 @@
 Definition of search constants
 
     ALGORITHM_NAME: Algorithm to use to search move.
-        - alphabeta: alphabeta search.
+        - alpha_beta: alphabeta search.
         - parallel_alpha_beta_layer_1: parallel alpha beta search from 1st ply.
         - parallel_alpha_beta_layer_2: parallel alpha beta search from 2nd ply.
         - lazy_smp: lazy smp search.
