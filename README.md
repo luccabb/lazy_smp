@@ -1,6 +1,6 @@
 # Moonfish Engine ([~2000 Elo Rating Lichess.org](https://lichess.org/@/moonfish_bot))
 
-Didatic Python Chess Engine
+Didactic Python Chess Engine
 ## Installing dependencies
 
 ```
