@@ -32,7 +32,7 @@ with key positions and moves.
 python -m unittest tests/test.py
 ```
 
-### Bratko-Kopec Test
+### [Bratko-Kopec Test](https://www.chessprogramming.org/Bratko-Kopec_Test)
 
 [Bratko-Kopec](https://www.chessprogramming.org/Bratko-Kopec_Test) tests the engine 
 performance in terms of time and strenght.
