@@ -7,7 +7,7 @@ from lazy_smp import LazySMP
 
 
 class Algorithm(Enum):
-    """Algorithm enum."""
+    """Enumeration of all possible algorithms."""
     alpha_beta = "alpha_beta"
     parallel_alpha_beta_layer_1 = "parallel_alpha_beta_layer_1"
     parallel_alpha_beta_layer_2 = "parallel_alpha_beta_layer_2"
