@@ -8,17 +8,13 @@ pip install -r requirements.txt
 ```
 ## Running the Engine
 
-There are 2 main ways to run the engine:
-1. On your terminal as a [UCI](http://wbec-ridderkerk.nl/html/UCIProtocol.html) compatible engine.
-2. As a web server.
-
-### Running as an [UCI](http://wbec-ridderkerk.nl/html/UCIProtocol.html) Engine
+### 1. Running as an [UCI](http://wbec-ridderkerk.nl/html/UCIProtocol.html) Compatible Engine
 
 ```
 python main.py
 ```
 
-### Running as a web server
+### 2. Running as a Web Server
 
 ```
 python api.py
