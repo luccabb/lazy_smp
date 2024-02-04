@@ -75,8 +75,4 @@ def start():
                 best_move = polyglot.MemoryMappedReader("opening_book/cerebellum.bin").weighted_choice(board).move().uci()
             except:
                 best_move = engine.search_move(board, NEGAMAX_DEPTH, NULL_MOVE)
-                print(f"bestmove {best_move}")
-            # # search and print best move
-            # print("will search best move")
-            # best_move = engine.search_move(board, NEGAMAX_DEPTH, NULL_MOVE)
-            # print(f"bestmove {best_move}")
+            print(f"bestmove {best_move}")
