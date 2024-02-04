@@ -9,7 +9,11 @@ from engines.alpha_beta import AlphaBeta
 from constants import CHECKMATE_THRESHOLD
 
 LAYER_SIGNAL_CORRECTION = lambda data: data if data[3] == 2 else (-data[0], *data[1:])
-CHECKMATE_CORRECTION = lambda data: (data[0]+1, *data[1:]) if (data[0] > CHECKMATE_THRESHOLD and data[3] == 1) else data
+CHECKMATE_CORRECTION = lambda data: (
+    (data[0] + 1, *data[1:])
+    if (data[0] > CHECKMATE_THRESHOLD and data[3] == 1)
+    else data
+)
 
 
 class Layer2ParallelAlphaBeta(AlphaBeta):
@@ -18,12 +22,9 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
     algorithm starting from the second layer.
     """
 
-
     def generate_board_and_moves(
-        self,
-        og_board: Board,
-        board_to_move_that_generates_it: Manager,
-        layer: int) -> List[Tuple[Board, Move]]:
+        self, og_board: Board, board_to_move_that_generates_it: Manager, layer: int
+    ) -> List[Tuple[Board, Move]]:
         """
         Generate all possible boards with their layer depth for each board.
 
@@ -63,18 +64,13 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
             else:
                 board_to_move_that_generates_it[board.fen()] = move
             # add new board, original board, and current layer to our output
-            boards_and_moves.append((copy(board), og_board, layer+1))
+            boards_and_moves.append((copy(board), og_board, layer + 1))
 
             board.pop()
 
         return boards_and_moves
 
-
-    def search_move(
-        self,
-        board: Board,
-        depth: int,
-        null_move: bool) -> str:
+    def search_move(self, board: Board, depth: int, null_move: bool) -> str:
         START_LAYER = 2
         # start multiprocessing
         nprocs = cpu_count()
@@ -90,13 +86,18 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
 
         # generating all possible boards for up to 2 moves ahead
         for _ in range(START_LAYER):
-            arguments = [(board, board_to_move_that_generates_it, layer) for board, _, layer in board_list]
+            arguments = [
+                (board, board_to_move_that_generates_it, layer)
+                for board, _, layer in board_list
+            ]
             board_list = pool.starmap(self.generate_board_and_moves, arguments)
             board_list = [board for board in sum(board_list, [])]
 
         # negamax arguments
-        arguments = [(board, depth-START_LAYER, null_move, shared_cache)
-            for board, _, _ in board_list]
+        arguments = [
+            (board, depth - START_LAYER, null_move, shared_cache)
+            for board, _, _ in board_list
+        ]
 
         parallel_layer_result = pool.starmap(self.negamax, arguments)
 
@@ -107,7 +108,9 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
         # that generates the results and separating them
         # into groups based on the root board
         for i in range(len(parallel_layer_result)):
-            groups[board_list[i][1].fen()].append((*parallel_layer_result[i], board_list[i][0], board_list[i][2]))
+            groups[board_list[i][1].fen()].append(
+                (*parallel_layer_result[i], board_list[i][0], board_list[i][2])
+            )
 
         best_boards = []
 
@@ -118,11 +121,11 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
             group = list(map(LAYER_SIGNAL_CORRECTION, group))
             group = list(map(CHECKMATE_CORRECTION, group))
             # get best move from group
-            group.sort(key = lambda a: a[0])
+            group.sort(key=lambda a: a[0])
             best_boards.append(group[0])
 
         # get best board
-        best_boards.sort(key = lambda a: a[0], reverse = True)
+        best_boards.sort(key=lambda a: a[0], reverse=True)
         best_board = best_boards[0][2].fen()
 
         # get move that results in best board

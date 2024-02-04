@@ -4,8 +4,12 @@ from typing import Tuple, Union
 from chess import Board, Move
 
 from engines.base_engine import ChessEngine
-from constants import (CHECKMATE_SCORE, CHECKMATE_THRESHOLD, NULL_MOVE_R,
-                       QUIESCENCE_SEARCH_DEPTH)
+from constants import (
+    CHECKMATE_SCORE,
+    CHECKMATE_THRESHOLD,
+    NULL_MOVE_R,
+    QUIESCENCE_SEARCH_DEPTH,
+)
 from move_ordering import organize_moves, organize_moves_quiescence
 from psqt import board_evaluation
 
@@ -15,13 +19,9 @@ class AlphaBeta(ChessEngine):
     A class that implements alpha-beta search algorithm.
     """
 
-
     def quiescence_search(
-        self,
-        board: Board,
-        alpha: float,
-        beta: float,
-        depth: int) -> float:
+        self, board: Board, alpha: float, beta: float, depth: int
+    ) -> float:
         """
         This functions extends our search for important
         positions (such as: captures, pawn moves, promotions),
@@ -52,11 +52,11 @@ class AlphaBeta(ChessEngine):
             return stand_pat
 
         # beta-cutoff
-        if(stand_pat >= beta):
+        if stand_pat >= beta:
             return beta
 
         # alpha update
-        if(alpha < stand_pat):
+        if alpha < stand_pat:
             alpha = stand_pat
 
         # get moves for quiescence search
@@ -65,19 +65,18 @@ class AlphaBeta(ChessEngine):
         for move in moves:
             # make move and get score
             board.push(move)
-            score = -self.quiescence_search(board, -beta, -alpha, depth-1)
+            score = -self.quiescence_search(board, -beta, -alpha, depth - 1)
             board.pop()
 
             # beta-cutoff
-            if(score >= beta):
+            if score >= beta:
                 return beta
 
             # alpha-update
-            if(score > alpha):
+            if score > alpha:
                 alpha = score
 
         return alpha
-
 
     def negamax(
         self,
@@ -86,7 +85,8 @@ class AlphaBeta(ChessEngine):
         null_move: bool,
         cache: Manager,
         alpha: float = float("-inf"),
-        beta: float = float("inf")) -> Tuple[Union[int, Move]]:
+        beta: float = float("inf"),
+    ) -> Tuple[Union[int, Move]]:
         """
         This functions receives a board, depth and a player; and it returns
         the best move for the current board based on how many depths we're looking ahead
@@ -132,16 +132,20 @@ class AlphaBeta(ChessEngine):
         # recursion base case
         if depth <= 0:
             # evaluate current board
-            board_score = self.quiescence_search(board, alpha, beta, QUIESCENCE_SEARCH_DEPTH)
+            board_score = self.quiescence_search(
+                board, alpha, beta, QUIESCENCE_SEARCH_DEPTH
+            )
             cache[(board.fen(), depth)] = (board_score, None)
             return board_score, None
 
         # null move prunning
-        if null_move and depth >= (NULL_MOVE_R+1) and not board.is_check():
+        if null_move and depth >= (NULL_MOVE_R + 1) and not board.is_check():
             board_score = board_evaluation(board)
             if board_score >= beta:
                 board.push(Move.null())
-                board_score = -self.negamax(board, depth -1 - NULL_MOVE_R, False, cache, -beta, -beta+1)[0]
+                board_score = -self.negamax(
+                    board, depth - 1 - NULL_MOVE_R, False, cache, -beta, -beta + 1
+                )[0]
                 board.pop()
                 if board_score >= beta:
                     cache[(board.fen(), depth)] = (beta, None)
@@ -157,7 +161,9 @@ class AlphaBeta(ChessEngine):
             # make the move
             board.push(move)
 
-            board_score = -self.negamax(board, depth-1, null_move, cache, -beta, -alpha)[0]
+            board_score = -self.negamax(
+                board, depth - 1, null_move, cache, -beta, -alpha
+            )[0]
             if board_score > CHECKMATE_THRESHOLD:
                 board_score -= 1
             if board_score < -CHECKMATE_THRESHOLD:
@@ -192,8 +198,9 @@ class AlphaBeta(ChessEngine):
         cache[(board.fen(), depth)] = (best_score, best_move)
         return best_score, best_move
 
-
-    def search_move(self, board: Board, depth: int, null_move: bool) -> Tuple[Union[int, Move]]:
+    def search_move(
+        self, board: Board, depth: int, null_move: bool
+    ) -> Tuple[Union[int, Move]]:
         # create shared cache
         manager = Manager()
         cache = manager.dict()

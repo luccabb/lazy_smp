@@ -12,7 +12,6 @@ class Layer1ParallelAlphaBeta(AlphaBeta):
     algorithm starting from the first layer.
     """
 
-
     def search_move(self, board: chess.Board, depth: int, null_move: bool) -> str:
         # start multiprocessing
         nprocs = cpu_count()
@@ -25,7 +24,7 @@ class Layer1ParallelAlphaBeta(AlphaBeta):
         arguments = []
         for move in moves:
             board.push(move)
-            arguments.append((copy(board), depth-1, null_move, shared_cache))
+            arguments.append((copy(board), depth - 1, null_move, shared_cache))
             board.pop()
 
         # executing all the moves at layer 1 in parallel
@@ -37,6 +36,6 @@ class Layer1ParallelAlphaBeta(AlphaBeta):
             result[i] = (*result[i], moves[i])
 
         # sorting results and getting best move
-        result.sort(key = lambda a: a[0])
+        result.sort(key=lambda a: a[0])
         best_move = result[0][2]
         return best_move
