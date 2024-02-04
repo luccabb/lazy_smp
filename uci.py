@@ -15,7 +15,7 @@ def start():
     # init board and engine
     board = Board()
     engine = get_engine(ALGORITHM_NAME)
-    
+
     # keep listening to UCI commands
     while True:
         # get command from stdin
@@ -30,7 +30,7 @@ def start():
             print('id name Moonfish')
             print('id author Lucca B')
             print("uciok")
-        
+
         elif uci_command == "isready":
             # engine ready to receive commands
             print("readyok")
@@ -38,7 +38,7 @@ def start():
         elif uci_command == "ucinewgame":
             # start new game
             board = Board()
-        
+
         elif uci_command.startswith("position"):
             moves_idx = uci_command.find('moves')
 
@@ -47,7 +47,7 @@ def start():
                 moveslist = uci_command[moves_idx:].split()[1:]
             else:
                 moveslist = []
-            
+
             # get FEN from uci command
             if uci_parameters[1] == 'fen':
                 if moves_idx >= 0:
@@ -65,9 +65,14 @@ def start():
             board = Board(fen)
             for move in moveslist:
                 board.push_uci(move)
-        
-        elif uci_command.startswith("go"):
-            # search and print best move
-            best_move = engine.search_move(board, NEGAMAX_DEPTH, NULL_MOVE)
-            print(f"bestmove {best_move}")
 
+        elif uci_command.startswith("go"):
+
+            # try using cerebellum opening book: https://zipproth.de/Brainfish/download/
+            # if it fails we search on our engine. The first (12-20) moves should be
+            # available in the opening book, so our engine starts playing after that.
+            try:
+                best_move = polyglot.MemoryMappedReader("opening_book/cerebellum.bin").weighted_choice(board).move().uci()
+            except:
+                best_move = engine.search_move(board, NEGAMAX_DEPTH, NULL_MOVE)
+            print(f"bestmove {best_move}")

@@ -3,7 +3,7 @@ from typing import Tuple, Union
 
 from chess import Board, Move
 
-from base_engine import ChessEngine
+from engines.base_engine import ChessEngine
 from constants import (CHECKMATE_SCORE, CHECKMATE_THRESHOLD, NULL_MOVE_R,
                        QUIESCENCE_SEARCH_DEPTH)
 from move_ordering import organize_moves, organize_moves_quiescence
@@ -17,13 +17,13 @@ class AlphaBeta(ChessEngine):
 
 
     def quiescence_search(
-        self, 
-        board: Board, 
+        self,
+        board: Board,
         alpha: float,
-        beta: float, 
+        beta: float,
         depth: int) -> float:
         """
-        This functions extends our search for important 
+        This functions extends our search for important
         positions (such as: captures, pawn moves, promotions),
         by using a reduced search tree.
 
@@ -35,7 +35,7 @@ class AlphaBeta(ChessEngine):
             along the path for min). When Alpha is higher than or equal to Beta, we can prune the search tree;
             because it means that the maximizing player won't find a better move in this branch.
             - depth: how many depths we want to calculate for this board
-        
+
         Returns:
             - best_score: returns best move's score.
         """
@@ -44,13 +44,13 @@ class AlphaBeta(ChessEngine):
 
         if board.is_checkmate():
             return -CHECKMATE_SCORE
-        
+
         stand_pat = board_evaluation(board)
 
         # recursion base case
         if depth == 0:
             return stand_pat
-        
+
         # beta-cutoff
         if(stand_pat >= beta):
             return beta
@@ -71,47 +71,47 @@ class AlphaBeta(ChessEngine):
             # beta-cutoff
             if(score >= beta):
                 return beta
-            
+
             # alpha-update
             if(score > alpha):
-                alpha = score  
+                alpha = score
 
         return alpha
 
 
     def negamax(
-        self, 
-        board: Board, 
-        depth: int, 
+        self,
+        board: Board,
+        depth: int,
         null_move: bool,
         cache: Manager,
-        alpha: float = float("-inf"), 
+        alpha: float = float("-inf"),
         beta: float = float("inf")) -> Tuple[Union[int, Move]]:
         """
         This functions receives a board, depth and a player; and it returns
         the best move for the current board based on how many depths we're looking ahead
         and which player is playing. Alpha and beta are used to prune the search tree.
-        Alpha represents the best score for the maximizing player (best choice (highest value)  we've found 
+        Alpha represents the best score for the maximizing player (best choice (highest value)  we've found
         along the path for max) and beta represents the best score for the minimizing player
-        (best choice (lowest value) we've found along the path for min). When Alpha is higher 
-        than or equal to Beta, we can prune the search tree; because it means that the 
+        (best choice (lowest value) we've found along the path for min). When Alpha is higher
+        than or equal to Beta, we can prune the search tree; because it means that the
         maximizing player won't find a better move in this branch.
 
         OBS:
             - We only need to evaluate the value for leaf nodes because they are our final states
-            of the board and therefore we need to use their values to base our decision of what is 
+            of the board and therefore we need to use their values to base our decision of what is
             the best move.
 
-        Arguments: 
+        Arguments:
             - board: chess board state
             - depth: how many depths we want to calculate for this board
             - null_move: if we want to use null move pruning
-            - cache: a shared hash table to store the best 
+            - cache: a shared hash table to store the best
                 move for each board state and depth.
-            - alpha: best score for the maximizing player (best choice 
+            - alpha: best score for the maximizing player (best choice
                 (highest value)  we've found along the path for max)
             - beta: best score for the minimizing player (best choice
-                (lowest value) we've found along the path for min). 
+                (lowest value) we've found along the path for min).
 
         Returns:
             - best_score, best_move: returns best move that it found and its value.
@@ -120,11 +120,11 @@ class AlphaBeta(ChessEngine):
         # check if board was already evaluated
         if (board.fen(), depth) in cache:
             return cache[(board.fen(), depth)]
-            
+
         if board.is_checkmate():
             cache[(board.fen(), depth)] = (-CHECKMATE_SCORE, None)
             return (-CHECKMATE_SCORE, None)
-        
+
         if board.is_stalemate():
             cache[(board.fen(), depth)] = (0, None)
             return (0, None)
@@ -152,7 +152,7 @@ class AlphaBeta(ChessEngine):
         # initializing best_score
         best_score = float("-inf")
         moves = organize_moves(board)
-        
+
         for move in moves:
             # make the move
             board.push(move)
@@ -170,12 +170,12 @@ class AlphaBeta(ChessEngine):
             if board_score >= beta:
                 cache[(board.fen(), depth)] = (board_score, move)
                 return board_score, move
-            
+
             # update best move
             if board_score > best_score:
                 best_score = board_score
                 best_move = move
-            
+
             # setting alpha variable to do pruning
             alpha = max(alpha, board_score)
 

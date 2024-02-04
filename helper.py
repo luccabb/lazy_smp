@@ -1,9 +1,9 @@
 from enum import Enum
 
-from alpha_beta import AlphaBeta
-from l1p_alpha_beta import Layer1ParallelAlphaBeta
-from l2p_alpha_beta import Layer2ParallelAlphaBeta
-from lazy_smp import LazySMP
+from engines.alpha_beta import AlphaBeta
+from engines.l1p_alpha_beta import Layer1ParallelAlphaBeta
+from engines.l2p_alpha_beta import Layer2ParallelAlphaBeta
+from engines.lazy_smp import LazySMP
 
 
 class Algorithm(Enum):
