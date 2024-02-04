@@ -2,7 +2,7 @@ from multiprocessing import Manager, Pool, cpu_count
 
 from chess import Board
 
-from alpha_beta import AlphaBeta
+from engines.alpha_beta import AlphaBeta
 
 
 class LazySMP(AlphaBeta):

@@ -2,5 +2,6 @@ import multiprocessing
 
 from uci import start
 
-multiprocessing.freeze_support()
-start()
+if __name__ == "__main__":
+    multiprocessing.freeze_support()
+    start()
