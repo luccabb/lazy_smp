@@ -1,18 +1,14 @@
 from multiprocessing import Manager
-from typing import Tuple, Union
+from multiprocessing.managers import DictProxy
+from typing import Tuple, Union, Optional, Any
 
 from chess import Board, Move
 
+from constants import (CHECKMATE_SCORE, CHECKMATE_THRESHOLD, NULL_MOVE_R,
+                       QUIESCENCE_SEARCH_DEPTH)
 from engines.base_engine import ChessEngine
-from constants import (
-    CHECKMATE_SCORE,
-    CHECKMATE_THRESHOLD,
-    NULL_MOVE_R,
-    QUIESCENCE_SEARCH_DEPTH,
-)
 from move_ordering import organize_moves, organize_moves_quiescence
 from psqt import board_evaluation
-
 
 class AlphaBeta(ChessEngine):
     """
@@ -83,10 +79,10 @@ class AlphaBeta(ChessEngine):
         board: Board,
         depth: int,
         null_move: bool,
-        cache: Manager,
+        cache: DictProxy,
         alpha: float = float("-inf"),
         beta: float = float("inf"),
-    ) -> Tuple[Union[int, Move]]:
+    ) -> Tuple[float | int, Optional[str]]:
         """
         This functions receives a board, depth and a player; and it returns
         the best move for the current board based on how many depths we're looking ahead
@@ -200,7 +196,7 @@ class AlphaBeta(ChessEngine):
 
     def search_move(
         self, board: Board, depth: int, null_move: bool
-    ) -> Tuple[Union[int, Move]]:
+    ) -> Optional[str]:
         # create shared cache
         manager = Manager()
         cache = manager.dict()

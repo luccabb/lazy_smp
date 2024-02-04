@@ -1,9 +1,9 @@
 import unittest
 
 from chess import Board, Move
+
 from constants import ALGORITHM_NAME, NEGAMAX_DEPTH, NULL_MOVE
 from helper import get_engine
-
 
 POSITIONS = [
     ("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1", [Move.from_uci("d6d1")]),

@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from random import choice
+from typing import Optional
 
 from chess import Board
 
@@ -29,7 +30,7 @@ class ChessEngine:
         return move
 
     @abstractmethod
-    def search_move(self, board: Board, depth: int, null_move: bool) -> str:
+    def search_move(self, board: Board, depth: int, null_move: bool) -> Optional[str]:
         """
         We'll search for the best possible move in the board that we're
         receiving up to a given depth.

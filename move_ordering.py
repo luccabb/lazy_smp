@@ -73,7 +73,7 @@ def mvv_lva(board: Board, move: Move, phase: float) -> float:
     Returns:
             - mvv_lva: value of the move
     """
-    move_value = 0
+    move_value: float = 0
 
     # evaluating position
     from_value = evaluate_piece(board, move.from_square, phase)

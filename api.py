@@ -7,7 +7,7 @@ from flask import Flask, request
 from flask_cors import CORS, cross_origin
 
 from constants import ALGORITHM_NAME, NEGAMAX_DEPTH, NULL_MOVE
-from helper import get_engine
+from helper import get_engine, Algorithm
 
 
 app = Flask(__name__)

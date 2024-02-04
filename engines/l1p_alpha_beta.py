@@ -29,13 +29,14 @@ class Layer1ParallelAlphaBeta(AlphaBeta):
 
         # executing all the moves at layer 1 in parallel
         # starmap blocks until all process are done
-        result = pool.starmap(self.negamax, arguments)
+        processes = pool.starmap(self.negamax, arguments)
+        results = []
 
         # inserting move information in the results
-        for i in range(len(result)):
-            result[i] = (*result[i], moves[i])
+        for i in range(len(processes)):
+            results.append((*processes[i], moves[i]))
 
         # sorting results and getting best move
-        result.sort(key=lambda a: a[0])
-        best_move = result[0][2]
-        return best_move
+        results.sort(key=lambda a: a[0])
+        best_move = results[0][2]
+        return best_move.uci()

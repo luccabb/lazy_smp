@@ -1,12 +1,13 @@
 from collections import defaultdict
 from copy import copy
 from multiprocessing import Manager, Pool, cpu_count
-from typing import List, Tuple
+from typing import List, Tuple, Any
+from multiprocessing.managers import DictProxy
 
 from chess import Board, Move
 
-from engines.alpha_beta import AlphaBeta
 from constants import CHECKMATE_THRESHOLD
+from engines.alpha_beta import AlphaBeta
 
 LAYER_SIGNAL_CORRECTION = lambda data: data if data[3] == 2 else (-data[0], *data[1:])
 CHECKMATE_CORRECTION = lambda data: (
@@ -23,8 +24,8 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
     """
 
     def generate_board_and_moves(
-        self, og_board: Board, board_to_move_that_generates_it: Manager, layer: int
-    ) -> List[Tuple[Board, Move]]:
+        self, og_board: Board, board_to_move_that_generates_it: DictProxy, layer: int
+    ) -> List[Tuple[Board, Board, int]]:
         """
         Generate all possible boards with their layer depth for each board.
 
@@ -90,16 +91,15 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
                 (board, board_to_move_that_generates_it, layer)
                 for board, _, layer in board_list
             ]
-            board_list = pool.starmap(self.generate_board_and_moves, arguments)
-            board_list = [board for board in sum(board_list, [])]
+            processes = pool.starmap(self.generate_board_and_moves, arguments)
+            board_list = [board for board in sum(processes, [])]
 
-        # negamax arguments
-        arguments = [
+        negamax_arguments = [
             (board, depth - START_LAYER, null_move, shared_cache)
             for board, _, _ in board_list
         ]
 
-        parallel_layer_result = pool.starmap(self.negamax, arguments)
+        parallel_layer_result = pool.starmap(self.negamax, negamax_arguments)
 
         # grouping output based on the  board that generates it
         groups = defaultdict(list)

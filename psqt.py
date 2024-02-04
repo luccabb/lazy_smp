@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, List
 
 import chess
 
@@ -184,7 +184,7 @@ TOTAL_PHASE = (
 )
 
 
-def count_pieces(board: chess.Board) -> Tuple[int]:
+def count_pieces(board: chess.Board) -> List[Tuple[int, int]]:
     """
     Counts the number of each piece on the board.
 
@@ -231,7 +231,7 @@ def get_phase(board: chess.Board) -> float:
         The phase of the game.
     """
     pieces = count_pieces(board)
-    phase = TOTAL_PHASE
+    phase: float = TOTAL_PHASE
 
     for piece_count, piece_phase in pieces:
         phase -= piece_count * piece_phase
@@ -356,8 +356,8 @@ def evaluate_capture(board: chess.Board, move: chess.Move, phase: float) -> floa
     if board.is_en_passant(move):
         return 0
 
-    capturing_piece = board.piece_at(move.from_square).piece_type
-    captured_piece = board.piece_at(move.to_square).piece_type
+    capturing_piece = board.piece_at(move.from_square).piece_type # type: ignore
+    captured_piece = board.piece_at(move.to_square).piece_type # type: ignore
 
     # get mid and end game difference of scores between captured
     # and capturing piece
