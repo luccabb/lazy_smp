@@ -1,6 +1,6 @@
 import sys
 
-from chess import STARTING_FEN, Board
+from chess import STARTING_FEN, Board, polyglot
 
 from constants import ALGORITHM_NAME, NEGAMAX_DEPTH, NULL_MOVE
 from helper import get_engine
