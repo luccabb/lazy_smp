@@ -39,4 +39,4 @@ class Layer1ParallelAlphaBeta(AlphaBeta):
         # sorting results and getting best move
         results.sort(key=lambda a: a[0])
         best_move = results[0][2]
-        return best_move.uci()
+        return best_move
