@@ -52,10 +52,10 @@ def start():
             if uci_parameters[1] == "fen":
                 if moves_idx >= 0:
                     fenpart = uci_command[:moves_idx]
+                    _, _, fen = fenpart.split(" ", 2)
                 else:
-                    fenpart = uci_command
+                    fen = " ".join(uci_parameters[2:])
 
-                _, _, fen = fenpart.split(" ", 2)
             elif uci_parameters[1] == "startpos":
                 fen = STARTING_FEN
             else:
