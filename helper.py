@@ -8,13 +8,14 @@ from engines.lazy_smp import LazySMP
 
 class Algorithm(Enum):
     """Enumeration of all possible algorithms."""
+
     alpha_beta = "alpha_beta"
     parallel_alpha_beta_layer_1 = "parallel_alpha_beta_layer_1"
     parallel_alpha_beta_layer_2 = "parallel_alpha_beta_layer_2"
     lazy_smp = "lazy_smp"
 
 
-def get_engine(algorithm_name: Algorithm):
+def get_engine(algorithm_name: str):
     """
     Returns the engine
 
@@ -24,14 +25,14 @@ def get_engine(algorithm_name: Algorithm):
     Returns:
         - engine: the engine we want to use.
     """
-    algorithm_name = Algorithm[algorithm_name]
+    algorithm = Algorithm[algorithm_name]
 
-    if algorithm_name is Algorithm.alpha_beta:
+    if algorithm is Algorithm.alpha_beta:
         return AlphaBeta()
-    elif algorithm_name is Algorithm.parallel_alpha_beta_layer_1:
+    elif algorithm is Algorithm.parallel_alpha_beta_layer_1:
         return Layer1ParallelAlphaBeta()
-    elif algorithm_name is Algorithm.parallel_alpha_beta_layer_2:
+    elif algorithm is Algorithm.parallel_alpha_beta_layer_2:
         return Layer2ParallelAlphaBeta()
-    elif algorithm_name is Algorithm.lazy_smp:
+    elif algorithm is Algorithm.lazy_smp:
         return LazySMP()
     raise Exception("algorithm not supported")

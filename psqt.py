@@ -1,11 +1,13 @@
-from typing import Tuple
+# flake8: noqa
+from typing import List, Tuple
 
 import chess
 
-
 ############
-# I'm using Pesto Evaluation function: https://www.chessprogramming.org/PeSTO%27s_Evaluation_Function
-# values for Piece-Square Tables from Rofchade: http://www.talkchess.com/forum3/viewtopic.php?f=2&t=68311&start=19
+# I'm using Pesto Evaluation function:
+# https://www.chessprogramming.org/PeSTO%27s_Evaluation_Function
+# values for Piece-Square Tables from Rofchade:
+# http://www.talkchess.com/forum3/viewtopic.php?f=2&t=68311&start=19
 ############
 MG_PIECE_VALUES = {
     chess.PAWN: 82,
@@ -25,6 +27,7 @@ EG_PIECE_VALUES = {
     chess.KING: 24000,
 }
 
+# fmt: off
 MG_PAWN = [
     0,   0,   0,   0,   0,   0,  0,   0,
     98, 134,  61,  95,  68, 126, 34, -11,
@@ -144,6 +147,7 @@ EG_KING = [
     -19,  -3,  11,  21,  23,  16,   7,  -9,
     -27, -11,   4,  13,  14,   4,  -5, -17,
     -53, -34, -21, -11, -28, -14, -24, -43]
+# fmt: on
 
 MG_PESTO = {
     chess.PAWN: MG_PAWN,
@@ -151,7 +155,8 @@ MG_PESTO = {
     chess.BISHOP: MG_BISHOP,
     chess.ROOK: MG_ROOK,
     chess.QUEEN: MG_QUEEN,
-    chess.KING: MG_KING}
+    chess.KING: MG_KING,
+}
 
 EG_PESTO = {
     chess.PAWN: EG_PAWN,
@@ -159,11 +164,12 @@ EG_PESTO = {
     chess.BISHOP: EG_BISHOP,
     chess.ROOK: EG_ROOK,
     chess.QUEEN: EG_QUEEN,
-    chess.KING: EG_KING}
+    chess.KING: EG_KING,
+}
 
 ############
 # Tapered Evaluation: https://www.chessprogramming.org/Tapered_Eval
-# Phase values are used to determine on what phase of the game 
+# Phase values are used to determine on what phase of the game
 # we're currently at.
 ############
 PAWN_PHASE = 0
@@ -171,16 +177,22 @@ KNIGHT_PHASE = 1
 BISHOP_PHASE = 1
 ROOK_PHASE = 2
 QUEEN_PHASE = 4
-TOTAL_PHASE = PAWN_PHASE*16 + KNIGHT_PHASE*4 + BISHOP_PHASE*4 + ROOK_PHASE*4 + QUEEN_PHASE*2
+TOTAL_PHASE = (
+    PAWN_PHASE * 16
+    + KNIGHT_PHASE * 4
+    + BISHOP_PHASE * 4
+    + ROOK_PHASE * 4
+    + QUEEN_PHASE * 2
+)
 
 
-def count_pieces(board: chess.Board) -> Tuple[int]:
+def count_pieces(board: chess.Board) -> List[Tuple[int, int]]:
     """
     Counts the number of each piece on the board.
 
-    :param 
+    :param
         board: The board to count the pieces on.
-    :return: 
+    :return:
         A list of tuples containing the number of pieces of that type
         and their phase value.
     """
@@ -197,30 +209,32 @@ def count_pieces(board: chess.Board) -> Tuple[int]:
     bq = len(board.pieces(chess.QUEEN, chess.BLACK))
 
     return [
-        (wp, PAWN_PHASE), 
-        (bp, PAWN_PHASE), 
-        (wn, KNIGHT_PHASE), 
-        (bn, KNIGHT_PHASE), 
-        (wb, BISHOP_PHASE), 
-        (bb, BISHOP_PHASE), 
-        (wr, ROOK_PHASE), 
-        (br, ROOK_PHASE), 
-        (wq, QUEEN_PHASE), 
-        (bq, QUEEN_PHASE)]
+        (wp, PAWN_PHASE),
+        (bp, PAWN_PHASE),
+        (wn, KNIGHT_PHASE),
+        (bn, KNIGHT_PHASE),
+        (wb, BISHOP_PHASE),
+        (bb, BISHOP_PHASE),
+        (wr, ROOK_PHASE),
+        (br, ROOK_PHASE),
+        (wq, QUEEN_PHASE),
+        (bq, QUEEN_PHASE),
+    ]
 
 
 def get_phase(board: chess.Board) -> float:
     """
-    Calculates the phase of the game based on the number of pieces on the board.
+    Calculates the phase of the game based on the number of pieces
+    on the board.
 
     :param
-        pieces: A list of tuples containing the number of pieces of that type
-        and their phase value.
+        pieces: A list of tuples containing the number of pieces of
+        that type and their phase value.
     :return:
         The phase of the game.
     """
     pieces = count_pieces(board)
-    phase = TOTAL_PHASE
+    phase: float = TOTAL_PHASE
 
     for piece_count, piece_phase in pieces:
         phase -= piece_count * piece_phase
@@ -258,12 +272,24 @@ def board_evaluation(board: chess.Board) -> float:
         piece = board.piece_at(square)
         if piece is not None:
             if piece.color == chess.WHITE:
-                mg[piece.color] += MG_PESTO[piece.piece_type][63-square] + MG_PIECE_VALUES[piece.piece_type]
-                eg[piece.color] += EG_PESTO[piece.piece_type][63-square] + EG_PIECE_VALUES[piece.piece_type]
+                mg[piece.color] += (
+                    MG_PESTO[piece.piece_type][63 - square]
+                    + MG_PIECE_VALUES[piece.piece_type]
+                )
+                eg[piece.color] += (
+                    EG_PESTO[piece.piece_type][63 - square]
+                    + EG_PIECE_VALUES[piece.piece_type]
+                )
             else:
-                mg[piece.color] += MG_PESTO[piece.piece_type][square] + MG_PIECE_VALUES[piece.piece_type]
-                eg[piece.color] += EG_PESTO[piece.piece_type][square] + EG_PIECE_VALUES[piece.piece_type]
-    
+                mg[piece.color] += (
+                    MG_PESTO[piece.piece_type][square]
+                    + MG_PIECE_VALUES[piece.piece_type]
+                )
+                eg[piece.color] += (
+                    EG_PESTO[piece.piece_type][square]
+                    + EG_PIECE_VALUES[piece.piece_type]
+                )
+
     # calculate board score based on phase
     mg_score = mg[board.turn] - mg[not board.turn]
     eg_score = eg[board.turn] - eg[not board.turn]
@@ -292,11 +318,21 @@ def evaluate_piece(board: chess.Board, square: chess.Square, phase: float) -> fl
     piece = board.piece_at(square)
     if piece is not None:
         if piece.color == chess.WHITE:
-            mg_score += MG_PESTO[piece.piece_type][63-square] + MG_PIECE_VALUES[piece.piece_type]
-            eg_score += EG_PESTO[piece.piece_type][63-square] + EG_PIECE_VALUES[piece.piece_type]
+            mg_score += (
+                MG_PESTO[piece.piece_type][63 - square]
+                + MG_PIECE_VALUES[piece.piece_type]
+            )
+            eg_score += (
+                EG_PESTO[piece.piece_type][63 - square]
+                + EG_PIECE_VALUES[piece.piece_type]
+            )
         else:
-            mg_score += MG_PESTO[piece.piece_type][square] + MG_PIECE_VALUES[piece.piece_type]
-            eg_score += EG_PESTO[piece.piece_type][square] + EG_PIECE_VALUES[piece.piece_type]
+            mg_score += (
+                MG_PESTO[piece.piece_type][square] + MG_PIECE_VALUES[piece.piece_type]
+            )
+            eg_score += (
+                EG_PESTO[piece.piece_type][square] + EG_PIECE_VALUES[piece.piece_type]
+            )
 
     # evaluate piece value based on phase
     eval = ((mg_score * (256 - phase)) + (eg_score * phase)) / 256
@@ -322,16 +358,16 @@ def evaluate_capture(board: chess.Board, move: chess.Move, phase: float) -> floa
     # en passant score
     if board.is_en_passant(move):
         return 0
-    
-    capturing_piece = board.piece_at(move.from_square).piece_type
-    captured_piece = board.piece_at(move.to_square).piece_type
 
-    # get mid and end game difference of scores between captured 
+    capturing_piece = board.piece_at(move.from_square).piece_type  # type: ignore
+    captured_piece = board.piece_at(move.to_square).piece_type  # type: ignore
+
+    # get mid and end game difference of scores between captured
     # and capturing piece
     if capturing_piece is not None and captured_piece is not None:
         mg_score += MG_PIECE_VALUES[captured_piece] - MG_PIECE_VALUES[capturing_piece]
         eg_score += EG_PIECE_VALUES[captured_piece] - EG_PIECE_VALUES[capturing_piece]
-    
+
     # evaluate capture based on game's phase
     eval = ((mg_score * (256 - phase)) + (eg_score * phase)) / 256
     return eval
