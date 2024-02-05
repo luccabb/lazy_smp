@@ -1,6 +1,6 @@
 import random
 
-from chess import Board, Move, BLACK
+from chess import BLACK, Board, Move
 
 from psqt import evaluate_capture, evaluate_piece, get_phase
 
@@ -53,7 +53,7 @@ def organize_moves_quiescence(board: Board):
     moves = sorted(
         captures,
         key=lambda move: mvv_lva(board, move, phase),
-        reverse=(True if board.turn == BLACK else False),
+        reverse=(board.turn == BLACK),
     )
     return moves
 

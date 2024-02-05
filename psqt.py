@@ -1,11 +1,13 @@
-from typing import Tuple, List
+# flake8: noqa
+from typing import List, Tuple
 
 import chess
 
-
 ############
-# I'm using Pesto Evaluation function: https://www.chessprogramming.org/PeSTO%27s_Evaluation_Function
-# values for Piece-Square Tables from Rofchade: http://www.talkchess.com/forum3/viewtopic.php?f=2&t=68311&start=19
+# I'm using Pesto Evaluation function:
+# https://www.chessprogramming.org/PeSTO%27s_Evaluation_Function
+# values for Piece-Square Tables from Rofchade:
+# http://www.talkchess.com/forum3/viewtopic.php?f=2&t=68311&start=19
 ############
 MG_PIECE_VALUES = {
     chess.PAWN: 82,
@@ -222,11 +224,12 @@ def count_pieces(board: chess.Board) -> List[Tuple[int, int]]:
 
 def get_phase(board: chess.Board) -> float:
     """
-    Calculates the phase of the game based on the number of pieces on the board.
+    Calculates the phase of the game based on the number of pieces
+    on the board.
 
     :param
-        pieces: A list of tuples containing the number of pieces of that type
-        and their phase value.
+        pieces: A list of tuples containing the number of pieces of
+        that type and their phase value.
     :return:
         The phase of the game.
     """
@@ -356,8 +359,8 @@ def evaluate_capture(board: chess.Board, move: chess.Move, phase: float) -> floa
     if board.is_en_passant(move):
         return 0
 
-    capturing_piece = board.piece_at(move.from_square).piece_type # type: ignore
-    captured_piece = board.piece_at(move.to_square).piece_type # type: ignore
+    capturing_piece = board.piece_at(move.from_square).piece_type  # type: ignore
+    captured_piece = board.piece_at(move.to_square).piece_type  # type: ignore
 
     # get mid and end game difference of scores between captured
     # and capturing piece

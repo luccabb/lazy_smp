@@ -1,6 +1,6 @@
 from multiprocessing import Manager
 from multiprocessing.managers import DictProxy
-from typing import Tuple, Union, Optional, Any
+from typing import Optional, Tuple
 
 from chess import Board, Move
 
@@ -9,6 +9,7 @@ from constants import (CHECKMATE_SCORE, CHECKMATE_THRESHOLD, NULL_MOVE_R,
 from engines.base_engine import ChessEngine
 from move_ordering import organize_moves, organize_moves_quiescence
 from psqt import board_evaluation
+
 
 class AlphaBeta(ChessEngine):
     """
@@ -25,11 +26,13 @@ class AlphaBeta(ChessEngine):
 
         Arguments:
             - board: chess board state
-            - alpha: best score for the maximizing player (best choice (highest value)  we've found
-            along the path for max)
-            - beta: best score for the minimizing player (best choice (lowest value) we've found
-            along the path for min). When Alpha is higher than or equal to Beta, we can prune the search tree;
-            because it means that the maximizing player won't find a better move in this branch.
+            - alpha: best score for the maximizing player (best choice
+                (highest value)  we've found along the path for max)
+            - beta: best score for the minimizing player (best choice
+                (lowest value) we've found along the path for min).
+                When Alpha is higher than or equal to Beta, we can prune
+                the search tree;    because it means that the maximizing
+                player won't find a better move in this branch.
             - depth: how many depths we want to calculate for this board
 
         Returns:
@@ -181,8 +184,9 @@ class AlphaBeta(ChessEngine):
             # setting alpha variable to do pruning
             alpha = max(alpha, board_score)
 
-            # alpha beta pruning when we already found a solution that is at least as good as the current one
-            # those branches won't be able to influence the final decision so we don't need to waste time analyzing them
+            # alpha beta pruning when we already found a solution that is at least as
+            # good as the current one those branches won't be able to influence the
+            # final decision so we don't need to waste time analyzing them
             if alpha >= beta:
                 break
 
@@ -194,9 +198,7 @@ class AlphaBeta(ChessEngine):
         cache[(board.fen(), depth)] = (best_score, best_move)
         return best_score, best_move
 
-    def search_move(
-        self, board: Board, depth: int, null_move: bool
-    ) -> Optional[str]:
+    def search_move(self, board: Board, depth: int, null_move: bool) -> Optional[str]:
         # create shared cache
         manager = Manager()
         cache = manager.dict()

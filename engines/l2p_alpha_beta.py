@@ -1,20 +1,25 @@
 from collections import defaultdict
 from copy import copy
 from multiprocessing import Manager, Pool, cpu_count
-from typing import List, Tuple, Any
 from multiprocessing.managers import DictProxy
+from typing import List, Tuple
 
-from chess import Board, Move
+from chess import Board
 
 from constants import CHECKMATE_THRESHOLD
 from engines.alpha_beta import AlphaBeta
 
-LAYER_SIGNAL_CORRECTION = lambda data: data if data[3] == 2 else (-data[0], *data[1:])
-CHECKMATE_CORRECTION = lambda data: (
-    (data[0] + 1, *data[1:])
-    if (data[0] > CHECKMATE_THRESHOLD and data[3] == 1)
-    else data
-)
+
+def LAYER_SIGNAL_CORRECTION(data):
+    return data if data[3] == 2 else (-data[0], *data[1:])
+
+
+def CHECKMATE_CORRECTION(data):
+    return (
+        (data[0] + 1, *data[1:])
+        if (data[0] > CHECKMATE_THRESHOLD and data[3] == 1)
+        else data
+    )
 
 
 class Layer2ParallelAlphaBeta(AlphaBeta):
@@ -49,10 +54,7 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
             boards_and_moves.append((og_board, og_board, layer))
 
         # get first layer move that generates current board
-        if og_board.fen() in board_to_move_that_generates_it:
-            first_move = board_to_move_that_generates_it[og_board.fen()]
-        else:
-            first_move = None
+        first_move = board_to_move_that_generates_it.get(og_board.fen())
 
         # generating all possible moves
         for move in board.legal_moves:

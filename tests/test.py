@@ -1,9 +1,9 @@
 import unittest
 
 from chess import Board, Move
+from parameterized import parameterized
 
 from helper import get_engine
-from parameterized import parameterized
 
 test_boards = [
     (Board("4r2K/8/8/8/8/7r/8/3k4 w - - 0 1"), 1, [Move.from_uci("h8g7")]),
