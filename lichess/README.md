@@ -18,7 +18,7 @@ lichess-bot/
 
 you could then run the below to setup (build + move files) lichess to work with the engine:
 
-don't forget to create a [`.env`](.env.example) with your lichess token
+don't forget to create a [`.env`](../.env.example) with your lichess token
 
 ```bash
 lichess/setup_macos.sh
