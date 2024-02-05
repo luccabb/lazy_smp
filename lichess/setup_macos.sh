@@ -1,13 +1,11 @@
 #!/bin/bash
 
-# copy lichess files assuming https://github.com/lichess-bot-devs/lichess-bot
-# is one dir up
+source .env
 
 # build binary
 read -p "Do you want to build a new binary? (y/n) " answer
 answer=$(echo "$answer" | tr '[:upper:]' '[:lower:]')
 if [[ "$answer" == "y" || "$answer" == "yes" ]]; then
-    python -m pip install pyinstaller
     python -m PyInstaller main.py --onefile
 fi
 
