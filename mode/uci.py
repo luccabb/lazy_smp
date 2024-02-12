@@ -2,19 +2,19 @@ import sys
 
 from chess import STARTING_FEN, Board, polyglot
 
-from constants import ALGORITHM_NAME, NEGAMAX_DEPTH, NULL_MOVE
 from helper import get_engine
+from config import Config
 
 # UCI based on Sunfish Engine: https://github.com/thomasahle/sunfish/blob/master/uci.py
 
 
-def start():
+def main(config: Config):
     """
     Start the command line user interface (UCI based).
     """
     # init board and engine
     board = Board()
-    engine = get_engine(ALGORITHM_NAME)
+    engine = get_engine(config)
 
     # keep listening to UCI commands
     while True:
@@ -28,7 +28,7 @@ def start():
         elif uci_command == "uci":
             # engine details
             print("id name Moonfish")
-            print("id author Lucca B")
+            print("id author luccab")
             print("uciok")
 
         elif uci_command == "isready":
@@ -79,5 +79,5 @@ def start():
                     .uci()
                 )
             except:
-                best_move = engine.search_move(board, NEGAMAX_DEPTH, NULL_MOVE)
+                best_move = engine.search_move(board, config)
             print(f"bestmove {best_move}")

@@ -6,7 +6,6 @@ from chess import Board, polyglot
 from flask import Flask, request
 from flask_cors import CORS, cross_origin
 
-from constants import ALGORITHM_NAME, NEGAMAX_DEPTH, NULL_MOVE
 from helper import get_engine
 
 app = Flask(__name__)
@@ -62,9 +61,9 @@ def main_search() -> Dict[str, Any]:
     """
     # get the parameters from the request
     fen = request.args.get("fen")
-    depth = int(request.args.get("depth", NEGAMAX_DEPTH))
-    null_move = ast.literal_eval(str(request.args.get("null_move", NULL_MOVE)))
-    algorithm = request.args.get("algorithm", ALGORITHM_NAME)
+    depth = int(request.args.get("depth"))
+    null_move = ast.literal_eval(str(request.args.get("null_move")))
+    algorithm = request.args.get("algorithm")
 
     # create the board
     board = Board(fen)
@@ -86,7 +85,10 @@ def main_search() -> Dict[str, Any]:
     return format_response(best_move)
 
 
-if __name__ == "__main__":
+def main():
+    """
+    Main function to start listening engine.
+    """
     # start listening on local host
     app.run(host="0.0.0.0", port=5000, debug=True)
     set_start_method("chess")

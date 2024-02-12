@@ -4,6 +4,7 @@ from engines.alpha_beta import AlphaBeta
 from engines.l1p_alpha_beta import Layer1ParallelAlphaBeta
 from engines.l2p_alpha_beta import Layer2ParallelAlphaBeta
 from engines.lazy_smp import LazySMP
+from config import Config
 
 
 class Algorithm(Enum):
@@ -15,7 +16,7 @@ class Algorithm(Enum):
     lazy_smp = "lazy_smp"
 
 
-def get_engine(algorithm_name: str):
+def get_engine(config: Config):
     """
     Returns the engine
 
@@ -25,14 +26,14 @@ def get_engine(algorithm_name: str):
     Returns:
         - engine: the engine we want to use.
     """
-    algorithm = Algorithm[algorithm_name]
+    algorithm = Algorithm[config.algorithm]
 
     if algorithm is Algorithm.alpha_beta:
-        return AlphaBeta()
+        return AlphaBeta(config)
     elif algorithm is Algorithm.parallel_alpha_beta_layer_1:
-        return Layer1ParallelAlphaBeta()
+        return Layer1ParallelAlphaBeta(config)
     elif algorithm is Algorithm.parallel_alpha_beta_layer_2:
-        return Layer2ParallelAlphaBeta()
+        return Layer2ParallelAlphaBeta(config)
     elif algorithm is Algorithm.lazy_smp:
-        return LazySMP()
+        return LazySMP(config)
     raise Exception("algorithm not supported")

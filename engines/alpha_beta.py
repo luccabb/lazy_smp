@@ -4,17 +4,22 @@ from typing import Optional, Tuple
 
 from chess import Board, Move
 
-from constants import (CHECKMATE_SCORE, CHECKMATE_THRESHOLD, NULL_MOVE_R,
-                       QUIESCENCE_SEARCH_DEPTH)
-from engines.base_engine import ChessEngine
+from config import Config
 from move_ordering import organize_moves, organize_moves_quiescence
 from psqt import board_evaluation
+from random import choice
 
 
-class AlphaBeta(ChessEngine):
+class AlphaBeta:
     """
     A class that implements alpha-beta search algorithm.
     """
+    def __init__(self, config: Config):
+        self.config = config
+
+    def random_move(self, board: Board) -> Move:
+        move = choice([move for move in board.legal_moves])
+        return move
 
     def quiescence_search(
         self, board: Board, alpha: float, beta: float, depth: int
@@ -42,7 +47,7 @@ class AlphaBeta(ChessEngine):
             return 0
 
         if board.is_checkmate():
-            return -CHECKMATE_SCORE
+            return -self.config.checkmate_score
 
         stand_pat = board_evaluation(board)
 
@@ -121,8 +126,8 @@ class AlphaBeta(ChessEngine):
             return cache[(board.fen(), depth)]
 
         if board.is_checkmate():
-            cache[(board.fen(), depth)] = (-CHECKMATE_SCORE, None)
-            return (-CHECKMATE_SCORE, None)
+            cache[(board.fen(), depth)] = (-self.config.checkmate_score, None)
+            return (-self.config.checkmate_score, None)
 
         if board.is_stalemate():
             cache[(board.fen(), depth)] = (0, None)
@@ -132,18 +137,18 @@ class AlphaBeta(ChessEngine):
         if depth <= 0:
             # evaluate current board
             board_score = self.quiescence_search(
-                board, alpha, beta, QUIESCENCE_SEARCH_DEPTH
+                board, alpha, beta, self.config.quiescence_search_depth
             )
             cache[(board.fen(), depth)] = (board_score, None)
             return board_score, None
 
         # null move prunning
-        if null_move and depth >= (NULL_MOVE_R + 1) and not board.is_check():
+        if self.config.null_move and depth >= (self.config.null_move_r + 1) and not board.is_check():
             board_score = board_evaluation(board)
             if board_score >= beta:
                 board.push(Move.null())
                 board_score = -self.negamax(
-                    board, depth - 1 - NULL_MOVE_R, False, cache, -beta, -beta + 1
+                    board, depth - 1 - self.config.null_move_r, False, cache, -beta, -beta + 1
                 )[0]
                 board.pop()
                 if board_score >= beta:
@@ -163,9 +168,9 @@ class AlphaBeta(ChessEngine):
             board_score = -self.negamax(
                 board, depth - 1, null_move, cache, -beta, -alpha
             )[0]
-            if board_score > CHECKMATE_THRESHOLD:
+            if board_score > self.config.checkmate_threshold:
                 board_score -= 1
-            if board_score < -CHECKMATE_THRESHOLD:
+            if board_score < -self.config.checkmate_threshold:
                 board_score += 1
 
             # take move back
@@ -192,15 +197,15 @@ class AlphaBeta(ChessEngine):
 
         # if no best move, make a random one
         if not best_move:
-            best_move = self.random_move(board)
+            best_move = self.random_move(board).uci()
 
         # save result before returning
         cache[(board.fen(), depth)] = (best_score, best_move)
         return best_score, best_move
 
-    def search_move(self, board: Board, depth: int, null_move: bool) -> Optional[str]:
+    def search_move(self, board: Board) -> Optional[str]:
         # create shared cache
         manager = Manager()
         cache = manager.dict()
 
-        return self.negamax(board, depth, null_move, cache)[1]
+        return self.negamax(board, self.config.negamax_depth, self.config.null_move, cache)[1]

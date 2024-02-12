@@ -6,7 +6,6 @@ from typing import List, Tuple
 
 from chess import Board
 
-from constants import CHECKMATE_THRESHOLD
 from engines.alpha_beta import AlphaBeta
 
 
@@ -14,10 +13,10 @@ def LAYER_SIGNAL_CORRECTION(data):
     return data if data[3] == 2 else (-data[0], *data[1:])
 
 
-def CHECKMATE_CORRECTION(data):
+def CHECKMATE_CORRECTION(data, threshold):
     return (
         (data[0] + 1, *data[1:])
-        if (data[0] > CHECKMATE_THRESHOLD and data[3] == 1)
+        if (data[0] > threshold and data[3] == 1)
         else data
     )
 
@@ -121,7 +120,7 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
             # they are needed to adjust for
             # boards from different layers
             group = list(map(LAYER_SIGNAL_CORRECTION, group))
-            group = list(map(CHECKMATE_CORRECTION, group))
+            group = list(map(CHECKMATE_CORRECTION, group, self.config.checkmate_threshold))
             # get best move from group
             group.sort(key=lambda a: a[0])
             best_boards.append(group[0])
