@@ -10,7 +10,8 @@ if [[ "$answer" == "y" || "$answer" == "yes" ]]; then
 fi
 
 # fetch opening book if not already downloaded
-git lfs fetch --all
+git lfs install
+git lfs pull
 
 # copy files
 cp dist/main ../lichess-bot/engines/main
