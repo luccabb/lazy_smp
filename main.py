@@ -41,7 +41,7 @@ def run(config: Config):
     "--null-move",
     type=bool,
     help="If True, use null move prunning.",
-    default=True,
+    default=False,
 )
 @click.option(
     "--null-move-r",
@@ -57,7 +57,7 @@ def run(config: Config):
 )
 def main(
     mode: str,
-    algorithm: str, 
+    algorithm: str,
     depth: int,
     null_move: bool,
     null_move_r: int,
@@ -74,9 +74,9 @@ def main(
         null_move_r=null_move_r,
         quiescence_search_depth=quiescence_search_depth
     )
-    multiprocessing.freeze_support()
     run(config)
 
 
 if __name__ == "__main__":
+    multiprocessing.freeze_support()
     main()

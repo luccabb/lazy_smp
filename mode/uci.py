@@ -79,5 +79,5 @@ def main(config: Config):
                     .uci()
                 )
             except:
-                best_move = engine.search_move(board, config)
+                best_move = engine.search_move(board)
             print(f"bestmove {best_move}")
