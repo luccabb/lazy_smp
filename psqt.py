@@ -270,25 +270,27 @@ def board_evaluation(board: chess.Board) -> float:
     # loop through all squares and sum their piece values for both sides
     for square in range(64):
         piece = board.piece_at(square)
-        if piece is not None:
-            if piece.color == chess.WHITE:
-                mg[piece.color] += (
-                    MG_PESTO[piece.piece_type][63 - square]
-                    + MG_PIECE_VALUES[piece.piece_type]
-                )
-                eg[piece.color] += (
-                    EG_PESTO[piece.piece_type][63 - square]
-                    + EG_PIECE_VALUES[piece.piece_type]
-                )
-            else:
-                mg[piece.color] += (
-                    MG_PESTO[piece.piece_type][square]
-                    + MG_PIECE_VALUES[piece.piece_type]
-                )
-                eg[piece.color] += (
-                    EG_PESTO[piece.piece_type][square]
-                    + EG_PIECE_VALUES[piece.piece_type]
-                )
+        if piece is None:
+            continue
+
+        if piece.color == chess.WHITE:
+            mg[piece.color] += (
+                MG_PESTO[piece.piece_type][square ^ 56]
+                + MG_PIECE_VALUES[piece.piece_type]
+            )
+            eg[piece.color] += (
+                EG_PESTO[piece.piece_type][square ^ 56]
+                + EG_PIECE_VALUES[piece.piece_type]
+            )
+        if piece.color == chess.BLACK:
+            mg[piece.color] += (
+                MG_PESTO[piece.piece_type][square]
+                + MG_PIECE_VALUES[piece.piece_type]
+            )
+            eg[piece.color] += (
+                EG_PESTO[piece.piece_type][square]
+                + EG_PIECE_VALUES[piece.piece_type]
+            )
 
     # calculate board score based on phase
     mg_score = mg[board.turn] - mg[not board.turn]
@@ -319,14 +321,14 @@ def evaluate_piece(board: chess.Board, square: chess.Square, phase: float) -> fl
     if piece is not None:
         if piece.color == chess.WHITE:
             mg_score += (
-                MG_PESTO[piece.piece_type][63 - square]
+                MG_PESTO[piece.piece_type][square ^ 56]
                 + MG_PIECE_VALUES[piece.piece_type]
             )
             eg_score += (
-                EG_PESTO[piece.piece_type][63 - square]
+                EG_PESTO[piece.piece_type][square ^ 56]
                 + EG_PIECE_VALUES[piece.piece_type]
             )
-        else:
+        if piece.color == chess.BLACK:
             mg_score += (
                 MG_PESTO[piece.piece_type][square] + MG_PIECE_VALUES[piece.piece_type]
             )
