@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 
+# CHECKMATE_SCORE: Score for checkmate.
 CHECKMATE_SCORE = 10**8
+# CHECKMATE_THRESHOLD: Threshold to differentiate checkmates from other moves.
 CHECKMATE_THRESHOLD = 999 * (10**4)
 
 

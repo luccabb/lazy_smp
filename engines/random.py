@@ -2,10 +2,13 @@ from random import choice
 
 from chess import Board
 
-from typing import Protocol
+from config import Config
 
 
-class RandomEngine(Protocol):
+class RandomEngine:
+
+    def __init__(self, _: Config):
+        ...
 
     def search_move(self, board: Board):
         """

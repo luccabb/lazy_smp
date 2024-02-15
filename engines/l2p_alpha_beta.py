@@ -3,6 +3,8 @@ from copy import copy
 from multiprocessing import Manager, Pool, cpu_count
 from multiprocessing.managers import DictProxy
 from typing import List, Tuple
+from config import Config
+from functools import partial
 
 from chess import Board
 
@@ -26,6 +28,9 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
     This class implements a parallel search
     algorithm starting from the second layer.
     """
+    def __init__(self, config: Config):
+        super().__init__(config)
+        self.checkmate_correction = partial(CHECKMATE_CORRECTION, threshold=self.config.checkmate_threshold)
 
     def generate_board_and_moves(
         self, og_board: Board, board_to_move_that_generates_it: DictProxy, layer: int
@@ -120,7 +125,7 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
             # they are needed to adjust for
             # boards from different layers
             group = list(map(LAYER_SIGNAL_CORRECTION, group))
-            group = list(map(CHECKMATE_CORRECTION, group, self.config.checkmate_threshold))
+            group = list(map(self.checkmate_correction, group))
             # get best move from group
             group.sort(key=lambda a: a[0])
             best_boards.append(group[0])

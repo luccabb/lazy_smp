@@ -100,7 +100,7 @@ class Testunctions(unittest.TestCase):
         )
 
         engine = get_engine(config)
-        result = engine.search_move(board, depth, config.null_move)
+        result = engine.search_move(board)
         self.assertIn(result, expected_result)
 
     @parameterized.expand(test_boards)

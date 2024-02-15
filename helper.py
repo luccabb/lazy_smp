@@ -4,6 +4,7 @@ from engines.alpha_beta import AlphaBeta
 from engines.l1p_alpha_beta import Layer1ParallelAlphaBeta
 from engines.l2p_alpha_beta import Layer2ParallelAlphaBeta
 from engines.lazy_smp import LazySMP
+from engines.random import RandomEngine
 from config import Config
 
 
@@ -14,6 +15,7 @@ class Algorithm(Enum):
     parallel_alpha_beta_layer_1 = "parallel_alpha_beta_layer_1"
     parallel_alpha_beta_layer_2 = "parallel_alpha_beta_layer_2"
     lazy_smp = "lazy_smp"
+    random = "random"
 
 
 def get_engine(config: Config):
@@ -36,4 +38,6 @@ def get_engine(config: Config):
         return Layer2ParallelAlphaBeta(config)
     elif algorithm is Algorithm.lazy_smp:
         return LazySMP(config)
+    elif algorithm is Algorithm.random:
+        return RandomEngine(config)
     raise Exception("algorithm not supported")
