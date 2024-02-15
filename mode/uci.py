@@ -28,7 +28,7 @@ def main(config: Config):
         elif uci_command == "uci":
             # engine details
             print("id name Moonfish")
-            print("id author luccab")
+            print("id author luccabb")
             print("uciok")
 
         elif uci_command == "isready":

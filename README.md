@@ -10,8 +10,11 @@ pip install -r requirements.txt
 
 ### 1. Running as an [UCI](http://wbec-ridderkerk.nl/html/UCIProtocol.html) Compatible Engine
 
-```
-python main.py
+```bash
+# to get available options
+$ python main.py --help
+# starts the engine with default options
+$ python main.py
 ```
 
 ### 2. Running as a Web Server
