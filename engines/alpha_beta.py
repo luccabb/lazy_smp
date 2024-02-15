@@ -1,7 +1,7 @@
 from multiprocessing import Manager
 from multiprocessing.managers import DictProxy
 from typing import Optional, Tuple
-
+import copy
 from chess import Board, Move
 
 from config import Config
@@ -208,4 +208,4 @@ class AlphaBeta:
         manager = Manager()
         cache = manager.dict()
 
-        return self.negamax(board, self.config.negamax_depth, self.config.null_move, cache)[1]
+        return self.negamax(board, copy.copy(self.config.negamax_depth), self.config.null_move, cache)[1]
