@@ -1,7 +1,7 @@
 from multiprocessing import Manager
 from multiprocessing.managers import DictProxy
 from typing import Optional, Tuple
-import copy
+from copy import copy
 from chess import Board, Move
 
 from config import Config
@@ -137,7 +137,7 @@ class AlphaBeta:
         if depth <= 0:
             # evaluate current board
             board_score = self.quiescence_search(
-                board, alpha, beta, self.config.quiescence_search_depth
+                board, alpha, beta, copy(self.config.quiescence_search_depth)
             )
             cache[(board.fen(), depth)] = (board_score, None)
             return board_score, None
@@ -208,4 +208,4 @@ class AlphaBeta:
         manager = Manager()
         cache = manager.dict()
 
-        return self.negamax(board, copy.copy(self.config.negamax_depth), self.config.null_move, cache)[1]
+        return self.negamax(board, copy(self.config.negamax_depth), self.config.null_move, cache)[1]

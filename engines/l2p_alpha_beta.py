@@ -77,7 +77,7 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
 
         return boards_and_moves
 
-    def search_move(self, board: Board, depth: int, null_move: bool) -> str:
+    def search_move(self, board: Board) -> str:
         START_LAYER = 2
         # start multiprocessing
         nprocs = cpu_count()
@@ -101,7 +101,7 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
             board_list = [board for board in sum(processes, [])]
 
         negamax_arguments = [
-            (board, depth - START_LAYER, null_move, shared_cache)
+            (board, copy(self.config.negamax_depth) - START_LAYER, self.config.null_move, shared_cache)
             for board, _, _ in board_list
         ]
 

@@ -3,11 +3,12 @@ from multiprocessing import Manager, Pool, cpu_count
 from chess import Board
 
 from engines.alpha_beta import AlphaBeta
+from copy import copy
 
 
 class LazySMP(AlphaBeta):
 
-    def search_move(self, board: Board, depth: int, null_move: bool) -> str:
+    def search_move(self, board: Board) -> str:
         # start multiprocessing
         nprocs = cpu_count()
         pool = Pool(processes=nprocs)
@@ -17,8 +18,13 @@ class LazySMP(AlphaBeta):
         # starmap blocks until all process are done
         pool.starmap(
             self.negamax,
-            [(board, depth, null_move, shared_cache) for _ in range(nprocs)],
+            [(
+                board,
+                copy(self.config.negamax_depth),
+                self.config.null_move,
+                shared_cache
+            ) for _ in range(nprocs)],
         )
 
         # return best move for our original board
-        return shared_cache[(board.fen(), depth)][1]
+        return shared_cache[(board.fen(), self.config.negamax_depth)][1]
