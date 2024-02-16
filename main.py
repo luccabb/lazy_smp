@@ -53,7 +53,7 @@ def run(config: Config):
     "--quiescence-search-depth",
     type=int,
     help="Max depth of quiescence search.",
-    default=4
+    default=5
 )
 def main(
     mode: str,
