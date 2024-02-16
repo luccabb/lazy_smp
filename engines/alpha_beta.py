@@ -143,6 +143,7 @@ class AlphaBeta:
         """
 
         if board.is_checkmate():
+            cache[(board.fen(), depth)] = (-self.config.checkmate_score, None)
             return (-self.config.checkmate_score, None)
 
         if board.is_stalemate():
@@ -230,4 +231,3 @@ class AlphaBeta:
             depth=copy(self.config.negamax_depth),
             null_move=self.config.null_move,
             )[1]
-
