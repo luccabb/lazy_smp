@@ -3,10 +3,11 @@ from copy import copy
 from multiprocessing import Manager, Pool, cpu_count
 from multiprocessing.managers import DictProxy
 from typing import List, Tuple
+from config import Config
+from functools import partial
 
 from chess import Board
 
-from constants import CHECKMATE_THRESHOLD
 from engines.alpha_beta import AlphaBeta
 
 
@@ -14,10 +15,10 @@ def LAYER_SIGNAL_CORRECTION(data):
     return data if data[3] == 2 else (-data[0], *data[1:])
 
 
-def CHECKMATE_CORRECTION(data):
+def CHECKMATE_CORRECTION(data, threshold):
     return (
         (data[0] + 1, *data[1:])
-        if (data[0] > CHECKMATE_THRESHOLD and data[3] == 1)
+        if (data[0] > threshold and data[3] == 1)
         else data
     )
 
@@ -27,6 +28,9 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
     This class implements a parallel search
     algorithm starting from the second layer.
     """
+    def __init__(self, config: Config):
+        super().__init__(config)
+        self.checkmate_correction = partial(CHECKMATE_CORRECTION, threshold=self.config.checkmate_threshold)
 
     def generate_board_and_moves(
         self, og_board: Board, board_to_move_that_generates_it: DictProxy, layer: int
@@ -73,7 +77,7 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
 
         return boards_and_moves
 
-    def search_move(self, board: Board, depth: int, null_move: bool) -> str:
+    def search_move(self, board: Board) -> str:
         START_LAYER = 2
         # start multiprocessing
         nprocs = cpu_count()
@@ -97,7 +101,7 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
             board_list = [board for board in sum(processes, [])]
 
         negamax_arguments = [
-            (board, depth - START_LAYER, null_move, shared_cache)
+            (board, copy(self.config.negamax_depth) - START_LAYER, self.config.null_move, shared_cache)
             for board, _, _ in board_list
         ]
 
@@ -121,7 +125,7 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
             # they are needed to adjust for
             # boards from different layers
             group = list(map(LAYER_SIGNAL_CORRECTION, group))
-            group = list(map(CHECKMATE_CORRECTION, group))
+            group = list(map(self.checkmate_correction, group))
             # get best move from group
             group.sort(key=lambda a: a[0])
             best_boards.append(group[0])

@@ -1,9 +1,10 @@
 import unittest
 
 from chess import Board, Move
+import time
 
-from constants import ALGORITHM_NAME, NEGAMAX_DEPTH, NULL_MOVE
 from helper import get_engine
+from config import Config
 
 POSITIONS = [
     ("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1", [Move.from_uci("d6d1")]),
@@ -86,22 +87,33 @@ POSITIONS = [
     ),
 ]
 
+TEST_CONFIG = Config(
+    mode="uci",
+    algorithm="alpha_beta",
+    negamax_depth=4,
+    null_move=True,
+    null_move_r=2,
+    quiescence_search_depth=3,
+
+)
+
 
 class TestChessFunctions(unittest.TestCase):
     def test_bratko_kopec(self):
 
         correct = 0
+        start_time = time.monotonic()
         for i, (position, moves) in enumerate(POSITIONS):
             board = Board(position)
 
-            engine = get_engine(ALGORITHM_NAME)
-            result = engine.search_move(board, NEGAMAX_DEPTH, NULL_MOVE)
+            engine = get_engine(TEST_CONFIG.algorithm)
+            result = engine.search_move(board, TEST_CONFIG.negamax_depth, TEST_CONFIG.null_move)
             print(str(i) + ":", result)
 
             if result in moves:
                 correct += 1
-
-        print("Correct Moves: {} of {}".format(correct, len(POSITIONS)))
+        end_time = time.monotonic()
+        print(f"Time: {end_time - start_time}, Correct Moves: {correct} of {len(POSITIONS)}")
 
 
 if __name__ == "__main__":

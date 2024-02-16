@@ -1,11 +1,14 @@
 from abc import abstractmethod
-from random import choice
 from typing import Optional
+
+from config import Config
 
 from chess import Board
 
+from typing import Protocol
 
-class ChessEngine:
+
+class ChessEngine(Protocol):
     """
     A class to represent a chess engine.
 
@@ -15,19 +18,8 @@ class ChessEngine:
         the current board based on how many depths
         we're looking ahead.
     """
-
-    def random_move(self, board: Board):
-        """
-        Returns a random move from the list of legal moves.
-
-        Arguments:
-            - board: chess board state.
-
-        Returns:
-            - move: a random move from the list of legal moves.
-        """
-        move = choice([move for move in board.legal_moves])
-        return move
+    def __init__(self, config: Config):
+        ...
 
     @abstractmethod
     def search_move(self, board: Board, depth: int, null_move: bool) -> Optional[str]:
