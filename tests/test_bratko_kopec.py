@@ -106,8 +106,8 @@ class TestChessFunctions(unittest.TestCase):
         for i, (position, moves) in enumerate(POSITIONS):
             board = Board(position)
 
-            engine = get_engine(TEST_CONFIG.algorithm)
-            result = engine.search_move(board, TEST_CONFIG.negamax_depth, TEST_CONFIG.null_move)
+            engine = get_engine(TEST_CONFIG)
+            result = engine.search_move(board)
             print(str(i) + ":", result)
 
             if result in moves:

@@ -6,6 +6,7 @@ from chess import Board, polyglot
 from flask import Flask, request
 from flask_cors import CORS, cross_origin
 
+from config import Config
 from helper import get_engine
 
 app = Flask(__name__)
@@ -61,9 +62,20 @@ def main_search() -> Dict[str, Any]:
     """
     # get the parameters from the request
     fen = request.args.get("fen")
-    depth = int(request.args.get("depth"))
+    depth = int(request.args.get("depth", 4))
+    quiescence_search_depth = int(request.args.get("quiescence_search_depth", 3))
     null_move = ast.literal_eval(str(request.args.get("null_move")))
-    algorithm = request.args.get("algorithm")
+    null_move_r = int(request.args.get("null_move_r", 2))
+    algorithm = request.args.get("algorithm", "alpha_beta")
+
+    config = Config(
+        mode="api",
+        algorithm=algorithm,
+        negamax_depth=depth,
+        null_move=null_move,
+        null_move_r=null_move_r,
+        quiescence_search_depth=quiescence_search_depth
+    )
 
     # create the board
     board = Board(fen)
@@ -74,12 +86,12 @@ def main_search() -> Dict[str, Any]:
     try:
         best_move = (
             polyglot.MemoryMappedReader("opening_book/cerebellum.bin")
-            .weighted_choice(board)
-            .move()
+            .find(board)
+            .move
             .uci()
         )
     except:
-        engine = get_engine(algorithm)
+        engine = get_engine(config)
         best_move = engine.search_move(board, depth, null_move).uci()
 
     return format_response(best_move)
