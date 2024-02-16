@@ -9,6 +9,23 @@ from move_ordering import organize_moves, organize_moves_quiescence
 from psqt import board_evaluation
 from random import choice
 
+CACHE = {}
+
+def negamax_cache(fun):
+
+    def inner(
+            self,
+            board: Board,
+            depth: int,
+            null_move: bool,
+            alpha: float = float("-inf"),
+            beta: float = float("inf")):
+        key = (board.fen(), depth, null_move, alpha, beta)
+        if key not in CACHE:
+            CACHE[key] = fun(self, board, depth, null_move, alpha, beta)
+        return CACHE[key]
+    return inner
+
 
 class AlphaBeta:
     """
@@ -22,7 +39,7 @@ class AlphaBeta:
         return move
 
     def quiescence_search(
-        self, board: Board, alpha: float, beta: float, depth: int
+        self, board: Board, depth: int, alpha: float, beta: float,
     ) -> float:
         """
         This functions extends our search for important
@@ -69,7 +86,11 @@ class AlphaBeta:
         for move in moves:
             # make move and get score
             board.push(move)
-            score = -self.quiescence_search(board, -beta, -alpha, depth - 1)
+            score = -self.quiescence_search(
+                board=board,
+                depth=depth - 1,
+                alpha=-beta,
+                beta=-alpha,)
             board.pop()
 
             # beta-cutoff
@@ -82,12 +103,12 @@ class AlphaBeta:
 
         return alpha
 
+    @negamax_cache
     def negamax(
         self,
         board: Board,
         depth: int,
         null_move: bool,
-        cache: DictProxy,
         alpha: float = float("-inf"),
         beta: float = float("inf"),
     ) -> Tuple[float | int, Optional[str]]:
@@ -121,25 +142,22 @@ class AlphaBeta:
             - best_score, best_move: returns best move that it found and its value.
         """
 
-        # check if board was already evaluated
-        if (board.fen(), depth) in cache:
-            return cache[(board.fen(), depth)]
-
         if board.is_checkmate():
             cache[(board.fen(), depth)] = (-self.config.checkmate_score, None)
             return (-self.config.checkmate_score, None)
 
         if board.is_stalemate():
-            cache[(board.fen(), depth)] = (0, None)
             return (0, None)
 
         # recursion base case
         if depth <= 0:
             # evaluate current board
             board_score = self.quiescence_search(
-                board, alpha, beta, copy(self.config.quiescence_search_depth)
+                board=board,
+                depth=copy(self.config.quiescence_search_depth),
+                alpha=alpha,
+                beta=beta,
             )
-            cache[(board.fen(), depth)] = (board_score, None)
             return board_score, None
 
         # null move prunning
@@ -148,11 +166,14 @@ class AlphaBeta:
             if board_score >= beta:
                 board.push(Move.null())
                 board_score = -self.negamax(
-                    board, depth - 1 - self.config.null_move_r, False, cache, -beta, -beta + 1
+                    board=board,
+                    depth=depth - 1 - self.config.null_move_r,
+                    null_move=False,
+                    alpha=-beta,
+                    beta=-beta + 1
                 )[0]
                 board.pop()
                 if board_score >= beta:
-                    cache[(board.fen(), depth)] = (beta, None)
                     return beta, None
 
         best_move = None
@@ -166,7 +187,11 @@ class AlphaBeta:
             board.push(move)
 
             board_score = -self.negamax(
-                board, depth - 1, null_move, cache, -beta, -alpha
+                board=board,
+                depth=depth - 1,
+                null_move=null_move,
+                alpha=-beta,
+                beta=-alpha
             )[0]
             if board_score > self.config.checkmate_threshold:
                 board_score -= 1
@@ -178,7 +203,6 @@ class AlphaBeta:
 
             # beta-cutoff
             if board_score >= beta:
-                cache[(board.fen(), depth)] = (board_score, move)
                 return board_score, move
 
             # update best move
@@ -199,13 +223,11 @@ class AlphaBeta:
         if not best_move:
             best_move = self.random_move(board).uci()
 
-        # save result before returning
-        cache[(board.fen(), depth)] = (best_score, best_move)
         return best_score, best_move
 
     def search_move(self, board: Board) -> Optional[str]:
-        # create shared cache
-        manager = Manager()
-        cache = manager.dict()
-
-        return self.negamax(board, copy(self.config.negamax_depth), self.config.null_move, cache)[1]
+        return self.negamax(
+            board=board,
+            depth=copy(self.config.negamax_depth),
+            null_move=self.config.null_move,
+            )[1]
