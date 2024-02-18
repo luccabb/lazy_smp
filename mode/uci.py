@@ -74,8 +74,8 @@ def main(config: Config):
             try:
                 best_move = (
                     polyglot.MemoryMappedReader("opening_book/cerebellum.bin")
-                    .find(board)
-                    .move
+                    .weighted_choice(board)
+                    .move()
                     .uci()
                 )
             except:
