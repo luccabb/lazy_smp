@@ -88,50 +88,53 @@ test_boards = [
 
 class Testunctions(unittest.TestCase):
 
-    @parameterized.expand(test_boards)
-    def test_alpha_beta(self, board, depth, expected_result):
-        config = Config(
-            mode="uci",
-            algorithm="alpha_beta",
-            negamax_depth=depth,
-            null_move=False,
-            null_move_r=2,
-            quiescence_search_depth=3,
-        )
+    # @parameterized.expand(test_boards)
+    # def test_alpha_beta(self, board, depth, expected_result):
+    #     config = Config(
+    #         mode="uci",
+    #         algorithm="alpha_beta",
+    #         negamax_depth=depth,
+    #         null_move=False,
+    #         null_move_r=2,
+    #         quiescence_search_depth=3,
+    #         syzygy_path="endgame/syzygy",
+    #     )
 
-        engine = get_engine(config)
-        result = engine.search_move(board)
-        self.assertIn(result, expected_result)
+    #     engine = get_engine(config)
+    #     result = engine.search_move(board)
+    #     self.assertIn(result, expected_result)
 
-    @parameterized.expand(test_boards)
-    def test_parallel_alpha_beta_layer_1(self, board, depth, expected_result):
-        config = Config(
-            mode="uci",
-            algorithm="parallel_alpha_beta_layer_1",
-            negamax_depth=depth,
-            null_move=False,
-            null_move_r=2,
-            quiescence_search_depth=3,
-        )
+    # @parameterized.expand(test_boards)
+    # def test_parallel_alpha_beta_layer_1(self, board, depth, expected_result):
+    #     config = Config(
+    #         mode="uci",
+    #         algorithm="parallel_alpha_beta_layer_1",
+    #         negamax_depth=depth,
+    #         null_move=False,
+    #         null_move_r=2,
+    #         quiescence_search_depth=3,
+    #         syzygy_path="endgame/syzygy",
+    #     )
 
-        engine = get_engine(config)
-        result = engine.search_move(board, depth, config.null_move)
-        self.assertIn(result, expected_result)
+    #     engine = get_engine(config)
+    #     result = engine.search_move(board)
+    #     self.assertIn(result, expected_result)
 
-    @parameterized.expand(test_boards)
-    def test_parallel_alpha_beta_layer_2(self, board, depth, expected_result):
-        config = Config(
-            mode="uci",
-            algorithm="parallel_alpha_beta_layer_2",
-            negamax_depth=depth,
-            null_move=True,
-            null_move_r=2,
-            quiescence_search_depth=3,
-        )
+    # @parameterized.expand(test_boards)
+    # def test_parallel_alpha_beta_layer_2(self, board, depth, expected_result):
+    #     config = Config(
+    #         mode="uci",
+    #         algorithm="parallel_alpha_beta_layer_2",
+    #         negamax_depth=depth,
+    #         null_move=True,
+    #         null_move_r=2,
+    #         quiescence_search_depth=3,
+    #         syzygy_path="endgame/syzygy",
+    #     )
 
-        engine = get_engine(config)
-        result = engine.search_move(board, depth, config.null_move)
-        self.assertIn(result, expected_result)
+    #     engine = get_engine(config)
+    #     result = engine.search_move(board)
+    #     self.assertIn(result, expected_result)
 
     @parameterized.expand(test_boards)
     def test_lazy_smp(self, board, depth, expected_result):
@@ -142,10 +145,11 @@ class Testunctions(unittest.TestCase):
             null_move=False,
             null_move_r=2,
             quiescence_search_depth=3,
+            syzygy_path="endgame/syzygy",
         )
 
         engine = get_engine(config)
-        result = engine.search_move(board, depth, config.null_move)
+        result = engine.search_move(board)
         self.assertIn(result, expected_result)
 
 

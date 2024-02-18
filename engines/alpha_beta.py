@@ -1,5 +1,3 @@
-from multiprocessing import Manager
-from multiprocessing.managers import DictProxy
 from typing import Optional, Tuple
 from copy import copy
 from chess import Board, Move
@@ -8,23 +6,22 @@ from config import Config
 from move_ordering import organize_moves, organize_moves_quiescence
 from psqt import board_evaluation
 from random import choice
+from engines.base_engine import ChessEngine
 
 CACHE = {}
 
-def negamax_cache(fun):
 
-    def inner(
-            self,
-            board: Board,
-            depth: int,
-            null_move: bool,
-            alpha: float = float("-inf"),
-            beta: float = float("inf")):
-        key = (board.fen(), depth, null_move, alpha, beta)
-        if key not in CACHE:
-            CACHE[key] = fun(self, board, depth, null_move, alpha, beta)
-        return CACHE[key]
-    return inner
+def negamax_wrapper(
+        board: Board,
+        depth: int,
+        null_move: bool,
+        engine_instance: ChessEngine,
+        alpha: float = float("-inf"),
+        beta: float = float("inf")):
+    key = (board.fen(), depth, null_move, alpha, beta)
+    if key not in CACHE:
+        CACHE[key] = engine_instance.negamax(board, depth, null_move, alpha, beta)
+    return CACHE[key]
 
 
 class AlphaBeta:
@@ -66,7 +63,7 @@ class AlphaBeta:
         if board.is_checkmate():
             return -self.config.checkmate_score
 
-        stand_pat = board_evaluation(board)
+        stand_pat = board_evaluation(board, self.config)
 
         # recursion base case
         if depth == 0:
@@ -103,7 +100,6 @@ class AlphaBeta:
 
         return alpha
 
-    @negamax_cache
     def negamax(
         self,
         board: Board,
@@ -143,7 +139,6 @@ class AlphaBeta:
         """
 
         if board.is_checkmate():
-            cache[(board.fen(), depth)] = (-self.config.checkmate_score, None)
             return (-self.config.checkmate_score, None)
 
         if board.is_stalemate():
@@ -162,7 +157,7 @@ class AlphaBeta:
 
         # null move prunning
         if self.config.null_move and depth >= (self.config.null_move_r + 1) and not board.is_check():
-            board_score = board_evaluation(board)
+            board_score = board_evaluation(board, self.config)
             if board_score >= beta:
                 board.push(Move.null())
                 board_score = -self.negamax(
@@ -226,8 +221,9 @@ class AlphaBeta:
         return best_score, best_move
 
     def search_move(self, board: Board) -> Optional[str]:
-        return self.negamax(
+        return negamax_wrapper(
             board=board,
             depth=copy(self.config.negamax_depth),
             null_move=self.config.null_move,
+            engine_instance=self,
             )[1]

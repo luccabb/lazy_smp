@@ -8,7 +8,7 @@ from functools import partial
 
 from chess import Board
 
-from engines.alpha_beta import AlphaBeta
+from engines.alpha_beta import AlphaBeta, negamax_wrapper
 
 
 def LAYER_SIGNAL_CORRECTION(data):
@@ -83,7 +83,6 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
         nprocs = cpu_count()
         pool = Pool(processes=nprocs)
         manager = Manager()
-        shared_cache = manager.dict()
 
         # pointer that help us in finding the best next move
         board_to_move_that_generates_it = manager.dict()
@@ -101,11 +100,11 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
             board_list = [board for board in sum(processes, [])]
 
         negamax_arguments = [
-            (board, copy(self.config.negamax_depth) - START_LAYER, self.config.null_move, shared_cache)
+            (board, copy(self.config.negamax_depth) - START_LAYER, self.config.null_move, self)
             for board, _, _ in board_list
         ]
 
-        parallel_layer_result = pool.starmap(self.negamax, negamax_arguments)
+        parallel_layer_result = pool.starmap(negamax_wrapper, negamax_arguments)
 
         # grouping output based on the  board that generates it
         groups = defaultdict(list)

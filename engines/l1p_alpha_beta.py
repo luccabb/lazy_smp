@@ -3,7 +3,7 @@ from multiprocessing import Manager, Pool, cpu_count
 
 import chess
 
-from engines.alpha_beta import AlphaBeta
+from engines.alpha_beta import AlphaBeta, negamax_wrapper
 
 
 class Layer1ParallelAlphaBeta(AlphaBeta):
@@ -16,8 +16,8 @@ class Layer1ParallelAlphaBeta(AlphaBeta):
         # start multiprocessing
         nprocs = cpu_count()
         pool = Pool(processes=nprocs)
-        manager = Manager()
-        shared_cache = manager.dict()
+        # manager = Manager()
+        # shared_cache = manager.dict()
 
         # creating list of moves at layer 1
         moves = list(board.legal_moves)
@@ -28,12 +28,14 @@ class Layer1ParallelAlphaBeta(AlphaBeta):
                 (copy(board),
                  copy(self.config.negamax_depth) - 1,
                  self.config.null_move,
-                 shared_cache))
+                 self,
+                #  shared_cache))
+                ))
             board.pop()
 
         # executing all the moves at layer 1 in parallel
         # starmap blocks until all process are done
-        processes = pool.starmap(self.negamax, arguments)
+        processes = pool.starmap(negamax_wrapper, arguments)
         results = []
 
         # inserting move information in the results
