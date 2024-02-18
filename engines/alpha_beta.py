@@ -1,6 +1,5 @@
-from multiprocessing import Manager
 from multiprocessing.managers import DictProxy
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict
 from copy import copy
 from chess import Board, Move
 
@@ -22,7 +21,7 @@ class AlphaBeta:
         return move
 
     def quiescence_search(
-        self, board: Board, alpha: float, beta: float, depth: int
+        self, board: Board, depth: int, alpha: float, beta: float,
     ) -> float:
         """
         This functions extends our search for important
@@ -69,7 +68,11 @@ class AlphaBeta:
         for move in moves:
             # make move and get score
             board.push(move)
-            score = -self.quiescence_search(board, -beta, -alpha, depth - 1)
+            score = -self.quiescence_search(
+                board=board,
+                depth=depth - 1,
+                alpha=-beta,
+                beta=-alpha,)
             board.pop()
 
             # beta-cutoff
@@ -87,7 +90,7 @@ class AlphaBeta:
         board: Board,
         depth: int,
         null_move: bool,
-        cache: DictProxy,
+        cache: DictProxy | Dict[Tuple[str, int], Tuple[float | int, Optional[str]]],
         alpha: float = float("-inf"),
         beta: float = float("inf"),
     ) -> Tuple[float | int, Optional[str]]:
@@ -137,7 +140,10 @@ class AlphaBeta:
         if depth <= 0:
             # evaluate current board
             board_score = self.quiescence_search(
-                board, alpha, beta, copy(self.config.quiescence_search_depth)
+                board=board,
+                depth=copy(self.config.quiescence_search_depth),
+                alpha=alpha,
+                beta=beta,
             )
             cache[(board.fen(), depth)] = (board_score, None)
             return board_score, None
@@ -148,7 +154,12 @@ class AlphaBeta:
             if board_score >= beta:
                 board.push(Move.null())
                 board_score = -self.negamax(
-                    board, depth - 1 - self.config.null_move_r, False, cache, -beta, -beta + 1
+                    board=board,
+                    depth=depth - 1 - self.config.null_move_r,
+                    null_move=False,
+                    cache=cache,
+                    alpha=-beta,
+                    beta=-beta + 1
                 )[0]
                 board.pop()
                 if board_score >= beta:
@@ -166,7 +177,12 @@ class AlphaBeta:
             board.push(move)
 
             board_score = -self.negamax(
-                board, depth - 1, null_move, cache, -beta, -alpha
+                board=board,
+                depth=depth - 1,
+                null_move=null_move,
+                cache=cache,
+                alpha=-beta,
+                beta=-alpha
             )[0]
             if board_score > self.config.checkmate_threshold:
                 board_score -= 1
@@ -205,7 +221,6 @@ class AlphaBeta:
 
     def search_move(self, board: Board) -> Optional[str]:
         # create shared cache
-        manager = Manager()
-        cache = manager.dict()
+        cache: Dict[Tuple[str, int], Tuple[float | int, Optional[str]]] = {}
 
         return self.negamax(board, copy(self.config.negamax_depth), self.config.null_move, cache)[1]

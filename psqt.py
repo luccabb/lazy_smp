@@ -243,6 +243,18 @@ def get_phase(board: chess.Board) -> float:
     return phase
 
 
+BOARD_EVALUATION_CACHE = {}
+def board_evaluation_cache(fun):
+
+    def inner(board: chess.Board):
+        key = board.fen()
+        if key not in BOARD_EVALUATION_CACHE:
+            BOARD_EVALUATION_CACHE[key] = fun(board)
+        return BOARD_EVALUATION_CACHE[key]
+    return inner
+
+
+@board_evaluation_cache
 def board_evaluation(board: chess.Board) -> float:
     """
     This functions receives a board and assigns a value to it, it acts as

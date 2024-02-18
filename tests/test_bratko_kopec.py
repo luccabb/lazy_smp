@@ -89,13 +89,48 @@ POSITIONS = [
 
 TEST_CONFIG = Config(
     mode="uci",
-    algorithm="alpha_beta",
+    # algorithm="alpha_beta",
+    # algorithm="parallel_alpha_beta_layer_1",
+    # algorithm="parallel_alpha_beta_layer_2",
+    algorithm="lazy_smp",
     negamax_depth=4,
     null_move=True,
     null_move_r=2,
     quiescence_search_depth=3,
 
 )
+
+"""
+alpha_beta
+Time: 457.321538084012, Correct Moves: 7 of 24
+.
+----------------------------------------------------------------------
+Ran 1 test in 457.322s
+
+layer 1
+Time: 1044.6324483749922, Correct Moves: 6 of 24
+.
+----------------------------------------------------------------------
+Ran 1 test in 1044.633s
+
+OK
+
+layer2
+Time: 1661.4910147080082, Correct Moves: 1 of 24
+.
+----------------------------------------------------------------------
+Ran 1 test in 1661.491s
+
+OK
+
+lazy_smp
+Time: 538.0235085829918, Correct Moves: 4 of 24
+.
+----------------------------------------------------------------------
+Ran 1 test in 538.024s
+
+OK
+"""
 
 
 class TestChessFunctions(unittest.TestCase):
@@ -106,8 +141,8 @@ class TestChessFunctions(unittest.TestCase):
         for i, (position, moves) in enumerate(POSITIONS):
             board = Board(position)
 
-            engine = get_engine(TEST_CONFIG.algorithm)
-            result = engine.search_move(board, TEST_CONFIG.negamax_depth, TEST_CONFIG.null_move)
+            engine = get_engine(TEST_CONFIG)
+            result = engine.search_move(board)
             print(str(i) + ":", result)
 
             if result in moves:
