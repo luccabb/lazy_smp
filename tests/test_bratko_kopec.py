@@ -100,38 +100,6 @@ TEST_CONFIG = Config(
 
 )
 
-"""
-alpha_beta
-Time: 457.321538084012, Correct Moves: 7 of 24
-.
-----------------------------------------------------------------------
-Ran 1 test in 457.322s
-
-layer 1
-Time: 1044.6324483749922, Correct Moves: 6 of 24
-.
-----------------------------------------------------------------------
-Ran 1 test in 1044.633s
-
-OK
-
-layer2
-Time: 1661.4910147080082, Correct Moves: 1 of 24
-.
-----------------------------------------------------------------------
-Ran 1 test in 1661.491s
-
-OK
-
-lazy_smp
-Time: 538.0235085829918, Correct Moves: 4 of 24
-.
-----------------------------------------------------------------------
-Ran 1 test in 538.024s
-
-OK
-"""
-
 
 class TestChessFunctions(unittest.TestCase):
     def test_bratko_kopec(self):
