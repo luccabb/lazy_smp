@@ -98,6 +98,7 @@ class Testunctions(unittest.TestCase):
             null_move_r=2,
             quiescence_search_depth=3,
             syzygy_path=None,
+            syzygy_pieces=5,
         )
 
         engine = get_engine(config)
@@ -114,6 +115,7 @@ class Testunctions(unittest.TestCase):
             null_move_r=2,
             quiescence_search_depth=3,
             syzygy_path=None,
+            syzygy_pieces=5,
         )
         engine = get_engine(config)
         result = engine.search_move(board)
@@ -129,6 +131,7 @@ class Testunctions(unittest.TestCase):
             null_move_r=2,
             quiescence_search_depth=3,
             syzygy_path=None,
+            syzygy_pieces=5,
         )
         engine = get_engine(config)
         result = engine.search_move(board)
@@ -144,6 +147,7 @@ class Testunctions(unittest.TestCase):
             null_move_r=2,
             quiescence_search_depth=3,
             syzygy_path=None,
+            syzygy_pieces=5,
         )
 
         engine = get_engine(config)

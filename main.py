@@ -59,8 +59,14 @@ def run(config: Config):
 @click.option(
     "--syzygy-path",
     type=str,
-    help="Path to syzygy endgame tablebases. Including tablebases may significantly increase the engine's search time.",
+    help="Path to syzygy endgame tablebases.",
     default=None
+)
+@click.option(
+    "--syzygy-pieces",
+    type=int,
+    help="Remaining pieces to use syzygy endgame tablebases.",
+    default=5
 )
 def main(
     mode: str,
@@ -69,7 +75,8 @@ def main(
     null_move: bool,
     null_move_r: int,
     quiescence_search_depth: int,
-    syzygy_path: Optional[str]
+    syzygy_path: Optional[str],
+    syzygy_pieces: int,
 ):
     """
     Starts the engine according to the options provided.
@@ -82,6 +89,7 @@ def main(
         null_move_r=null_move_r,
         quiescence_search_depth=quiescence_search_depth,
         syzygy_path=syzygy_path,
+        syzygy_pieces=syzygy_pieces,
     )
     run(config)
 
