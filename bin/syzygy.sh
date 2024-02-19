@@ -18,14 +18,15 @@ fi
 # download syzygy tablebases https://syzygy-tables.info/
 # ~1GB
 wget -P endgame/syzygy --mirror --no-parent --no-directories -e robots=off http://tablebase.sesse.net/syzygy/3-4-5/
-# ~81.4GB
-wget -P endgame/syzygy --mirror --no-parent --no-directories -e robots=off http://tablebase.sesse.net/syzygy/6-DTZ/
-# ~67.8GB
-wget -P endgame/syzygy --mirror --no-parent --no-directories -e robots=off http://tablebase.sesse.net/syzygy/6-WDL/
+# # ~81.4GB
+# wget -P endgame/syzygy --mirror --no-parent --no-directories -e robots=off http://tablebase.sesse.net/syzygy/6-DTZ/
+# # ~67.8GB
+# wget -P endgame/syzygy --mirror --no-parent --no-directories -e robots=off http://tablebase.sesse.net/syzygy/6-WDL/
 # ~8.3TB
 # wget -P endgame/syzygy --mirror --no-parent --no-directories -e robots=off http://tablebase.sesse.net/syzygy/7-DTZ/
 # ~8.5TB
 # wget -P endgame/syzygy --mirror --no-parent --no-directories -e robots=off http://tablebase.sesse.net/syzygy/7-WDL/
 
 echo 'download complete, verifying checksums'
+cd $directory_path
 md5sum --check checksum.md5
