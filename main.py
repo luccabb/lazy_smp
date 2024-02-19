@@ -3,6 +3,7 @@ import click
 import multiprocessing
 
 from config import Config
+from typing import Optional
 
 from mode.uci import main as uci_main
 from mode.api import main as api_main
@@ -55,13 +56,20 @@ def run(config: Config):
     help="Max depth of quiescence search.",
     default=3
 )
+@click.option(
+    "--syzygy-path",
+    type=str,
+    help="Path to syzygy endgame tablebases. Including tablebases may significantly increase the engine's search time.",
+    default=None
+)
 def main(
     mode: str,
     algorithm: str,
     depth: int,
     null_move: bool,
     null_move_r: int,
-    quiescence_search_depth: int
+    quiescence_search_depth: int,
+    syzygy_path: Optional[str]
 ):
     """
     Starts the engine according to the options provided.
@@ -72,7 +80,8 @@ def main(
         negamax_depth=depth,
         null_move=null_move,
         null_move_r=null_move_r,
-        quiescence_search_depth=quiescence_search_depth
+        quiescence_search_depth=quiescence_search_depth,
+        syzygy_path=syzygy_path,
     )
     run(config)
 

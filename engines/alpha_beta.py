@@ -1,5 +1,5 @@
-from multiprocessing.managers import DictProxy
 from typing import Optional, Tuple, Dict
+from multiprocessing.managers import DictProxy
 from copy import copy
 from chess import Board, Move
 
@@ -51,7 +51,7 @@ class AlphaBeta:
         if board.is_checkmate():
             return -self.config.checkmate_score
 
-        stand_pat = board_evaluation(board)
+        stand_pat = board_evaluation(board, self.config)
 
         # recursion base case
         if depth == 0:
@@ -153,7 +153,7 @@ class AlphaBeta:
 
         # null move prunning
         if self.config.null_move and depth >= (self.config.null_move_r + 1) and not board.is_check():
-            board_score = board_evaluation(board)
+            board_score = board_evaluation(board, self.config)
             if board_score >= beta:
                 board.push(Move.null())
                 board_score = -self.negamax(

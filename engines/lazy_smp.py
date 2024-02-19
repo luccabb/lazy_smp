@@ -22,7 +22,7 @@ class LazySMP(AlphaBeta):
                 board,
                 copy(self.config.negamax_depth),
                 self.config.null_move,
-                shared_cache
+                shared_cache,
             ) for _ in range(nprocs)],
         )
 

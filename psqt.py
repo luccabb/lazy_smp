@@ -1,7 +1,9 @@
 # flake8: noqa
 from typing import List, Tuple
 
+from config import Config
 import chess
+import chess.syzygy
 
 ############
 # I'm using Pesto Evaluation function:
@@ -246,16 +248,16 @@ def get_phase(board: chess.Board) -> float:
 BOARD_EVALUATION_CACHE = {}
 def board_evaluation_cache(fun):
 
-    def inner(board: chess.Board):
+    def inner(board: chess.Board, config: Config):
         key = board.fen()
         if key not in BOARD_EVALUATION_CACHE:
-            BOARD_EVALUATION_CACHE[key] = fun(board)
+            BOARD_EVALUATION_CACHE[key] = fun(board, config)
         return BOARD_EVALUATION_CACHE[key]
     return inner
 
 
 @board_evaluation_cache
-def board_evaluation(board: chess.Board) -> float:
+def board_evaluation(board: chess.Board, config: Config) -> float:
     """
     This functions receives a board and assigns a value to it, it acts as
     an evaluation function of the current state for this game. It returns
@@ -268,6 +270,15 @@ def board_evaluation(board: chess.Board) -> float:
         - total_value(int): integer representing
         current value for this board.
     """
+    if config.syzygy_path:
+        with chess.syzygy.open_tablebase(config.syzygy_path) as tablebase:
+            try:
+                eval = tablebase.probe_dtz(board) / 100.0
+                return eval
+            except (chess.syzygy.MissingTableError, KeyError):
+                # Tablebase position not found, continue with evaluation
+                pass
+
     phase = get_phase(board)
 
     mg = {

@@ -93,8 +93,8 @@ TEST_CONFIG = Config(
     negamax_depth=4,
     null_move=True,
     null_move_r=2,
-    quiescence_search_depth=3,
-
+    quiescence_search_depth=1,
+    syzygy_path=None,
 )
 
 
