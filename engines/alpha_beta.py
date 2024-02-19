@@ -9,6 +9,9 @@ from psqt import board_evaluation
 from random import choice
 
 
+CACHE_KEY = Dict[Tuple[str, int, bool, float, float], Tuple[float | int, Optional[str]]]
+
+
 class AlphaBeta:
     """
     A class that implements alpha-beta search algorithm.
@@ -90,7 +93,7 @@ class AlphaBeta:
         board: Board,
         depth: int,
         null_move: bool,
-        cache: DictProxy | Dict[Tuple[str, int], Tuple[float | int, Optional[str]]],
+        cache: DictProxy | CACHE_KEY,
         alpha: float = float("-inf"),
         beta: float = float("inf"),
     ) -> Tuple[float | int, Optional[str]]:
@@ -123,17 +126,17 @@ class AlphaBeta:
         Returns:
             - best_score, best_move: returns best move that it found and its value.
         """
-
+        cache_key = (board.fen(), depth, null_move, alpha, beta)
         # check if board was already evaluated
-        if (board.fen(), depth) in cache:
-            return cache[(board.fen(), depth)]
+        if cache_key in cache:
+            return cache[cache_key]
 
         if board.is_checkmate():
-            cache[(board.fen(), depth)] = (-self.config.checkmate_score, None)
+            cache[cache_key] = (-self.config.checkmate_score, None)
             return (-self.config.checkmate_score, None)
 
         if board.is_stalemate():
-            cache[(board.fen(), depth)] = (0, None)
+            cache[cache_key] = (0, None)
             return (0, None)
 
         # recursion base case
@@ -145,7 +148,7 @@ class AlphaBeta:
                 alpha=alpha,
                 beta=beta,
             )
-            cache[(board.fen(), depth)] = (board_score, None)
+            cache[cache_key] = (board_score, None)
             return board_score, None
 
         # null move prunning
@@ -163,7 +166,7 @@ class AlphaBeta:
                 )[0]
                 board.pop()
                 if board_score >= beta:
-                    cache[(board.fen(), depth)] = (beta, None)
+                    cache[cache_key] = (beta, None)
                     return beta, None
 
         best_move = None
@@ -194,7 +197,7 @@ class AlphaBeta:
 
             # beta-cutoff
             if board_score >= beta:
-                cache[(board.fen(), depth)] = (board_score, move)
+                cache[cache_key] = (board_score, move)
                 return board_score, move
 
             # update best move
@@ -216,11 +219,11 @@ class AlphaBeta:
             best_move = self.random_move(board).uci()
 
         # save result before returning
-        cache[(board.fen(), depth)] = (best_score, best_move)
+        cache[cache_key] = (best_score, best_move)
         return best_score, best_move
 
     def search_move(self, board: Board) -> Optional[str]:
         # create shared cache
-        cache: Dict[Tuple[str, int], Tuple[float | int, Optional[str]]] = {}
+        cache: CACHE_KEY = {}
 
         return self.negamax(board, copy(self.config.negamax_depth), self.config.null_move, cache)[1]

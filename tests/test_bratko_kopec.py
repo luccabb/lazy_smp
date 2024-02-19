@@ -89,10 +89,10 @@ POSITIONS = [
 
 TEST_CONFIG = Config(
     mode="uci",
-    # algorithm="alpha_beta",
+    algorithm="alpha_beta",
     # algorithm="parallel_alpha_beta_layer_1",
     # algorithm="parallel_alpha_beta_layer_2",
-    algorithm="lazy_smp",
+    # algorithm="lazy_smp",
     negamax_depth=4,
     null_move=True,
     null_move_r=2,

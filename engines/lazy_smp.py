@@ -27,4 +27,10 @@ class LazySMP(AlphaBeta):
         )
 
         # return best move for our original board
-        return shared_cache[(board.fen(), self.config.negamax_depth)][1]
+        return shared_cache[(
+            board.fen(),
+            self.config.negamax_depth,
+            self.config.null_move,
+            float("-inf"),
+            float("inf")
+        )][1]
