@@ -4,6 +4,7 @@ import multiprocessing
 
 from config import Config
 from typing import Optional
+import chess.syzygy
 
 from mode.uci import main as uci_main
 from mode.api import main as api_main
@@ -74,6 +75,11 @@ def main(
     """
     Starts the engine according to the options provided.
     """
+    if syzygy_path:
+        tablebase = chess.syzygy.open_tablebase(syzygy_path)
+    else:
+        tablebase = None
+    
     config = Config(
         mode=mode,
         algorithm=algorithm,
@@ -81,7 +87,7 @@ def main(
         null_move=null_move,
         null_move_r=null_move_r,
         quiescence_search_depth=quiescence_search_depth,
-        syzygy_path=syzygy_path,
+        tablebase=tablebase,
     )
     run(config)
 

@@ -244,6 +244,7 @@ def get_phase(board: chess.Board) -> float:
     phase = (phase * 256 + (TOTAL_PHASE / 2)) / TOTAL_PHASE
     return phase
 
+
 BOARD_EVALUATION_CACHE = {}
 def board_evaluation_cache(fun):
 
@@ -269,20 +270,12 @@ def board_evaluation(board: chess.Board, config: Config) -> float:
         - total_value(int): integer representing
         current value for this board.
     """
-    
-    if config.syzygy_path:
-        with chess.syzygy.open_tablebase(config.syzygy_path) as tablebase:
-            try:
-                eval = tablebase.probe_dtz(board) / 100.0
-                # if not board.turn:
-                #     eval = -eval
-                # print(f"Tablebase found: {eval}")
-                return eval
-            except (chess.syzygy.MissingTableError, KeyError):
-                # Tablebase position not found, continue with evaluation
-                # print(f"Tablebase exception: MissingTableError")
-                pass
-
+    if config.tablebase:
+        try:
+            eval = config.tablebase.probe_dtz(board) / 100.0
+            return eval
+        except (chess.syzygy.MissingTableError, KeyError):
+            pass
 
     phase = get_phase(board)
 

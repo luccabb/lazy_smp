@@ -94,7 +94,7 @@ TEST_CONFIG = Config(
     null_move=True,
     null_move_r=2,
     quiescence_search_depth=3,
-
+    syzygy_path="endgame/syzygy",
 )
 
 

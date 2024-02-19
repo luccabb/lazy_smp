@@ -8,7 +8,7 @@ from functools import partial
 
 from chess import Board
 
-from engines.alpha_beta import AlphaBeta, negamax_wrapper
+from engines.alpha_beta import AlphaBeta
 
 
 def LAYER_SIGNAL_CORRECTION(data):
@@ -104,7 +104,7 @@ class Layer2ParallelAlphaBeta(AlphaBeta):
             for board, _, _ in board_list
         ]
 
-        parallel_layer_result = pool.starmap(negamax_wrapper, negamax_arguments)
+        parallel_layer_result = pool.starmap(self.negamax, negamax_arguments)
 
         # grouping output based on the  board that generates it
         groups = defaultdict(list)
