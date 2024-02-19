@@ -5,8 +5,9 @@ from chess import Board, Move
 
 from config import Config
 from move_ordering import organize_moves, organize_moves_quiescence
-from psqt import board_evaluation
+from psqt import board_evaluation, count_pieces
 from random import choice
+import chess.syzygy
 
 
 CACHE_KEY = Dict[Tuple[str, int, bool, float, float], Tuple[float | int, Optional[str]]]
@@ -22,6 +23,30 @@ class AlphaBeta:
     def random_move(self, board: Board) -> Move:
         move = choice([move for move in board.legal_moves])
         return move
+
+    def eval_board(self, board: Board) -> float:
+        """
+        This function evaluates the board based on the current
+        position of the pieces and returns a score for the board.
+
+        Arguments:
+            - board: chess board state
+
+        Returns:
+            - score: the score for the current board
+        """
+        pieces = sum(count_pieces(board))
+
+        if pieces <= self.config.syzygy_pieces and self.config.syzygy_path:
+            with chess.syzygy.open_tablebase(self.config.syzygy_path) as tablebase:
+                try:
+                    eval = tablebase.probe_dtz(board)
+                    return eval
+                except (chess.syzygy.MissingTableError, KeyError):
+                    # syzygy tablebase position not found, continue with evaluation
+                    pass
+
+        return board_evaluation(board)
 
     def quiescence_search(
         self, board: Board, depth: int, alpha: float, beta: float,
@@ -51,7 +76,7 @@ class AlphaBeta:
         if board.is_checkmate():
             return -self.config.checkmate_score
 
-        stand_pat = board_evaluation(board, self.config)
+        stand_pat = self.eval_board(board)
 
         # recursion base case
         if depth == 0:
@@ -153,7 +178,7 @@ class AlphaBeta:
 
         # null move prunning
         if self.config.null_move and depth >= (self.config.null_move_r + 1) and not board.is_check():
-            board_score = board_evaluation(board, self.config)
+            board_score = self.eval_board(board)
             if board_score >= beta:
                 board.push(Move.null())
                 board_score = -self.negamax(

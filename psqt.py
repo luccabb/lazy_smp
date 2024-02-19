@@ -187,8 +187,15 @@ TOTAL_PHASE = (
     + QUEEN_PHASE * 2
 )
 
+PHASE_VALUES = [
+    PAWN_PHASE, PAWN_PHASE,
+    KNIGHT_PHASE, KNIGHT_PHASE,
+    BISHOP_PHASE, BISHOP_PHASE,
+    ROOK_PHASE, ROOK_PHASE,
+    QUEEN_PHASE, QUEEN_PHASE
+]
 
-def count_pieces(board: chess.Board) -> List[Tuple[int, int]]:
+def count_pieces(board: chess.Board) -> List[int]:
     """
     Counts the number of each piece on the board.
 
@@ -211,16 +218,16 @@ def count_pieces(board: chess.Board) -> List[Tuple[int, int]]:
     bq = len(board.pieces(chess.QUEEN, chess.BLACK))
 
     return [
-        (wp, PAWN_PHASE),
-        (bp, PAWN_PHASE),
-        (wn, KNIGHT_PHASE),
-        (bn, KNIGHT_PHASE),
-        (wb, BISHOP_PHASE),
-        (bb, BISHOP_PHASE),
-        (wr, ROOK_PHASE),
-        (br, ROOK_PHASE),
-        (wq, QUEEN_PHASE),
-        (bq, QUEEN_PHASE),
+        wp,
+        bp,
+        wn,
+        bn,
+        wb,
+        bb,
+        wr,
+        br,
+        wq,
+        bq,
     ]
 
 
@@ -238,7 +245,7 @@ def get_phase(board: chess.Board) -> float:
     pieces = count_pieces(board)
     phase: float = TOTAL_PHASE
 
-    for piece_count, piece_phase in pieces:
+    for piece_count, piece_phase in zip(pieces, PHASE_VALUES):
         phase -= piece_count * piece_phase
 
     phase = (phase * 256 + (TOTAL_PHASE / 2)) / TOTAL_PHASE
@@ -248,16 +255,16 @@ def get_phase(board: chess.Board) -> float:
 BOARD_EVALUATION_CACHE = {}
 def board_evaluation_cache(fun):
 
-    def inner(board: chess.Board, config: Config):
+    def inner(board: chess.Board):
         key = board.fen()
         if key not in BOARD_EVALUATION_CACHE:
-            BOARD_EVALUATION_CACHE[key] = fun(board, config)
+            BOARD_EVALUATION_CACHE[key] = fun(board)
         return BOARD_EVALUATION_CACHE[key]
     return inner
 
 
 @board_evaluation_cache
-def board_evaluation(board: chess.Board, config: Config) -> float:
+def board_evaluation(board: chess.Board) -> float:
     """
     This functions receives a board and assigns a value to it, it acts as
     an evaluation function of the current state for this game. It returns
@@ -270,14 +277,6 @@ def board_evaluation(board: chess.Board, config: Config) -> float:
         - total_value(int): integer representing
         current value for this board.
     """
-    if config.syzygy_path:
-        with chess.syzygy.open_tablebase(config.syzygy_path) as tablebase:
-            try:
-                eval = tablebase.probe_dtz(board) / 100.0
-                return eval
-            except (chess.syzygy.MissingTableError, KeyError):
-                # Tablebase position not found, continue with evaluation
-                pass
 
     phase = get_phase(board)
 
