@@ -2,7 +2,6 @@
 from typing import List, Tuple
 
 import chess
-from functools import lru_cache
 
 ############
 # I'm using Pesto Evaluation function:
@@ -243,6 +242,7 @@ def get_phase(board: chess.Board) -> float:
     phase = (phase * 256 + (TOTAL_PHASE / 2)) / TOTAL_PHASE
     return phase
 
+
 BOARD_EVALUATION_CACHE = {}
 def board_evaluation_cache(fun):
 
@@ -268,7 +268,6 @@ def board_evaluation(board: chess.Board) -> float:
         - total_value(int): integer representing
         current value for this board.
     """
-    
     phase = get_phase(board)
 
     mg = {

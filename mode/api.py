@@ -4,9 +4,9 @@ from typing import Any, Dict
 
 from chess import Board, polyglot
 from flask import Flask, request
+from config import Config
 from flask_cors import CORS, cross_origin
 
-from config import Config
 from helper import get_engine
 
 app = Flask(__name__)
@@ -92,7 +92,7 @@ def main_search() -> Dict[str, Any]:
         )
     except:
         engine = get_engine(config)
-        best_move = engine.search_move(board, depth, null_move).uci()
+        best_move = engine.search_move(board).uci()
 
     return format_response(best_move)
 
