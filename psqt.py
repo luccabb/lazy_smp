@@ -320,7 +320,6 @@ def board_evaluation(board: chess.Board, config: Config) -> float:
     eg_score = eg[board.turn] - eg[not board.turn]
     eval = ((mg_score * (256 - phase)) + (eg_score * phase)) / 256
 
-    # print(f"non Tablebase found: {eval}")
     return eval
 
 
