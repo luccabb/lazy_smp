@@ -154,6 +154,23 @@ class Testunctions(unittest.TestCase):
         result = engine.search_move(board)
         self.assertIn(result, expected_result)
 
+    @parameterized.expand(test_boards)
+    def test_iterative_deepening(self, board, depth, expected_result):
+        config = Config(
+            mode="uci",
+            algorithm="iterative_deepening",
+            negamax_depth=depth,
+            null_move=False,
+            null_move_r=2,
+            quiescence_search_depth=3,
+            syzygy_path=None,
+            syzygy_pieces=5,
+        )
+
+        engine = get_engine(config)
+        result = engine.search_move(board)
+        self.assertIn(result, expected_result)
+
 
 if __name__ == "__main__":
     unittest.main()

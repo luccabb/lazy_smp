@@ -29,7 +29,8 @@ def run(config: Config):
     "--algorithm",
     type=str,
     help="Algorithm to use to search move.",
-    default="alpha_beta"
+    # default="alpha_beta"
+    default="iterative_deepening"
 )
 @click.option(
     "--depth",

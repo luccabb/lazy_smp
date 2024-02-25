@@ -5,6 +5,7 @@ from engines.l1p_alpha_beta import Layer1ParallelAlphaBeta
 from engines.l2p_alpha_beta import Layer2ParallelAlphaBeta
 from engines.lazy_smp import LazySMP
 from engines.random import RandomEngine
+from engines.iterative_deepening import IterativeDeepening
 from config import Config
 
 
@@ -16,6 +17,7 @@ class Algorithm(Enum):
     parallel_alpha_beta_layer_2 = "parallel_alpha_beta_layer_2"
     lazy_smp = "lazy_smp"
     random = "random"
+    iterative_deepening = "iterative_deepening"
 
 
 def get_engine(config: Config):
@@ -40,4 +42,6 @@ def get_engine(config: Config):
         return LazySMP(config)
     elif algorithm is Algorithm.random:
         return RandomEngine(config)
+    elif algorithm is Algorithm.iterative_deepening:
+        return IterativeDeepening(config)
     raise Exception("algorithm not supported")

@@ -2,7 +2,7 @@ from typing import Optional, Tuple, Dict
 from multiprocessing.managers import DictProxy
 from copy import copy
 from chess import Board, Move
-
+from typing import List, Callable
 from config import Config
 from move_ordering import organize_moves, organize_moves_quiescence
 from psqt import board_evaluation, count_pieces
@@ -10,7 +10,7 @@ from random import choice
 import chess.syzygy
 
 
-CACHE_KEY = Dict[Tuple[str, int, bool, float, float], Tuple[float | int, Optional[str]]]
+CACHE_KEY = Dict[Tuple[str, int, bool, float, float], Tuple[float | int, Optional[Move]]]
 
 
 class AlphaBeta:
@@ -121,7 +121,8 @@ class AlphaBeta:
         cache: DictProxy | CACHE_KEY,
         alpha: float = float("-inf"),
         beta: float = float("inf"),
-    ) -> Tuple[float | int, Optional[str]]:
+        organize_moves: Callable[[Board], List[Move]] = organize_moves,
+    ) -> Tuple[float | int, Optional[Move]]:
         """
         This functions receives a board, depth and a player; and it returns
         the best move for the current board based on how many depths we're looking ahead
@@ -241,13 +242,13 @@ class AlphaBeta:
 
         # if no best move, make a random one
         if not best_move:
-            best_move = self.random_move(board).uci()
+            best_move = self.random_move(board)
 
         # save result before returning
         cache[cache_key] = (best_score, best_move)
         return best_score, best_move
 
-    def search_move(self, board: Board) -> Optional[str]:
+    def search_move(self, board: Board) -> Optional[Move]:
         # create shared cache
         cache: CACHE_KEY = {}
 

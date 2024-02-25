@@ -76,14 +76,14 @@ correspondence:
     ponder: false            # Ponder in correspondence games the bot is connected to.
 
 challenge:                   # Incoming challenges.
-  concurrency: 1             # Number of games to play simultaneously.
+  concurrency: 2             # Number of games to play simultaneously.
   sort_by: "best"            # Possible values: "best" and "first".
   accept_bot: false          # Accepts challenges coming from other bots.
   only_bot: false            # Accept challenges by bots only.
-  max_increment: 180         # Maximum amount of increment to accept a challenge. The max is 180. Set to 0 for no increment.
-  min_increment: 0           # Minimum amount of increment to accept a challenge.
-  max_base: 315360000        # Maximum amount of base time to accept a challenge. The max is 315360000 (10 years).
-  min_base: 0                # Minimum amount of base time to accept a challenge.
+  max_increment: 20         # Maximum amount of increment to accept a challenge. The max is 180. Set to 0 for no increment.
+  min_increment: 10           # Minimum amount of increment to accept a challenge.
+  max_base: 3600        # Maximum amount of base time to accept a challenge. The max is 315360000 (10 years).
+  min_base: 300                # Minimum amount of base time to accept a challenge.
   variants:                  # Chess variants to accept (https://lichess.org/variant).
     - standard
 #   - fromPosition
@@ -96,13 +96,13 @@ challenge:                   # Incoming challenges.
 #   - racingKings
 #   - threeCheck
   time_controls:             # Time controls to accept.
-    - bullet
+    # - bullet
     - blitz
     - rapid
-#   - classical
-#   - correspondence
+    - classical
+    - correspondence
   modes:                     # Game modes to accept.
-    - casual                 # Unrated games.
+    # - casual                 # Unrated games.
     - rated                  # Rated games - must comment if the engine doesn't try to win.
 
 greeting:

@@ -89,9 +89,10 @@ POSITIONS = [
 
 TEST_CONFIG = Config(
     mode="uci",
+    # algorithm="iterative_deepening",
     algorithm="alpha_beta",
     negamax_depth=4,
-    null_move=True,
+    null_move=False,
     null_move_r=2,
     quiescence_search_depth=1,
     syzygy_path=None,

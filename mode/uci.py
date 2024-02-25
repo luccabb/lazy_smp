@@ -4,9 +4,46 @@ from chess import STARTING_FEN, Board, polyglot
 
 from helper import get_engine
 from config import Config
+import chess
+from typing import List
+import time
 
 # UCI based on Sunfish Engine: https://github.com/thomasahle/sunfish/blob/master/uci.py
 
+def count_pieces(board: chess.Board) -> List[int]:
+    """
+    Counts the number of each piece on the board.
+
+    :param
+        board: The board to count the pieces on.
+    :return:
+        A list of tuples containing the number of pieces of that type
+        and their phase value.
+    """
+
+    wp = len(board.pieces(chess.PAWN, chess.WHITE))
+    wn = len(board.pieces(chess.KNIGHT, chess.WHITE))
+    wb = len(board.pieces(chess.BISHOP, chess.WHITE))
+    wr = len(board.pieces(chess.ROOK, chess.WHITE))
+    wq = len(board.pieces(chess.QUEEN, chess.WHITE))
+    bp = len(board.pieces(chess.PAWN, chess.BLACK))
+    bn = len(board.pieces(chess.KNIGHT, chess.BLACK))
+    bb = len(board.pieces(chess.BISHOP, chess.BLACK))
+    br = len(board.pieces(chess.ROOK, chess.BLACK))
+    bq = len(board.pieces(chess.QUEEN, chess.BLACK))
+
+    return [
+        wp,
+        bp,
+        wn,
+        bn,
+        wb,
+        bb,
+        wr,
+        br,
+        wq,
+        bq,
+    ]
 
 def main(config: Config):
     """
@@ -71,6 +108,7 @@ def main(config: Config):
             # try using cerebellum opening book: https://zipproth.de/Brainfish/download/
             # if it fails we search on our engine. The first (12-20) moves should be
             # available in the opening book, so our engine starts playing after that.
+            st = time.time()
             try:
                 best_move = (
                     polyglot.MemoryMappedReader("opening_book/cerebellum.bin")
@@ -80,4 +118,5 @@ def main(config: Config):
                 )
             except:
                 best_move = engine.search_move(board)
+            print(f"Time: {time.time() - st}")
             print(f"bestmove {best_move}")

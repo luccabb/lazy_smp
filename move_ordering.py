@@ -1,11 +1,9 @@
-import random
-
 from chess import BLACK, Board, Move
-
+from typing import List
 from psqt import evaluate_capture, evaluate_piece, get_phase
 
 
-def organize_moves(board: Board):
+def organize_moves(board: Board, good_moves: List[Move] = []) -> List[Move]:
     """
     This function receives a board and it returns a list of all the
     possible moves for the current player, sorted by importance.
@@ -22,14 +20,15 @@ def organize_moves(board: Board):
     captures = []
 
     for move in board.legal_moves:
+        if move in good_moves:
+            continue
+
         if board.is_capture(move):
             captures.append(move)
         else:
             non_captures.append(move)
 
-    random.shuffle(captures)
-    random.shuffle(non_captures)
-    return captures + non_captures
+    return good_moves + captures + non_captures
 
 
 def organize_moves_quiescence(board: Board):
