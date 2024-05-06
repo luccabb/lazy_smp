@@ -12,4 +12,4 @@ packaging==23.2
 parameterized==0.9.0
 pyinstaller==6.3.0
 pyinstaller-hooks-contrib==2024.0
-Werkzeug==3.0.1
+Werkzeug==3.0.3
