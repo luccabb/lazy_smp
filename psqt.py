@@ -381,10 +381,12 @@ def evaluate_capture(board: chess.Board, move: chess.Move, phase: float) -> floa
 
     # en passant score
     if board.is_en_passant(move):
-        return 0
-
-    capturing_piece = board.piece_at(move.from_square).piece_type  # type: ignore
-    captured_piece = board.piece_at(move.to_square).piece_type  # type: ignore
+        # En passant capture evaluation
+        capturing_piece = chess.PAWN
+        captured_piece = chess.PAWN
+    else:
+        capturing_piece = board.piece_at(move.from_square).piece_type # type: ignore
+        captured_piece = board.piece_at(move.to_square).piece_type # type: ignore
 
     # get mid and end game difference of scores between captured
     # and capturing piece

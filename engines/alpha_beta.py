@@ -87,8 +87,7 @@ class AlphaBeta:
             return beta
 
         # alpha update
-        if alpha < stand_pat:
-            alpha = stand_pat
+        alpha = max(alpha, stand_pat)
 
         # get moves for quiescence search
         moves = organize_moves_quiescence(board)
@@ -108,8 +107,7 @@ class AlphaBeta:
                 return beta
 
             # alpha-update
-            if score > alpha:
-                alpha = score
+            alpha = max(alpha, score)
 
         return alpha
 

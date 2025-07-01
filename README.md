@@ -1,6 +1,11 @@
+<p align="center">
+    <img src="moonfish.png" alt="moonfish" width="200"/>
+</p>
+
 # Moonfish Engine ([~2000 Elo Rating Lichess.org](https://lichess.org/@/moonfish_bot))
 
 Didactic Python Chess Engine
+
 ## Installing dependencies
 
 ```

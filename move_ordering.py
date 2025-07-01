@@ -9,8 +9,8 @@ def organize_moves(board: Board):
     """
     This function receives a board and it returns a list of all the
     possible moves for the current player, sorted by importance.
-    Right now we are only sending the moves that are capturing pieces
-    at the starting positions in our array (so we can prune more and earlier).
+    It sends capturing moves at the starting positions in 
+    the array (to try to increase pruning and do so earlier).
 
     Arguments:
             - board: chess board state

@@ -10,7 +10,7 @@ class RandomEngine:
     def __init__(self, _: Config):
         ...
 
-    def search_move(self, board: Board):
+    def search_move(self, board: Board) -> str:
         """
         Returns a random move from the list of legal moves.
 
@@ -21,4 +21,4 @@ class RandomEngine:
             - move: a random move from the list of legal moves.
         """
         move = choice([move for move in board.legal_moves])
-        return move
+        return move.uci()
