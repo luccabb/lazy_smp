@@ -36,7 +36,7 @@ def run(config: Config):
     "--negamax-depth",
     type=int,
     help="Depth of negamax search.",
-    default=4
+    default=3
 )
 @click.option(
     "--null-move",
