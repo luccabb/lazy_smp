@@ -2,11 +2,11 @@
 
 To run the engine as a lichess bot you'll need to install the [Lichess Bot API](https://github.com/ShailChoksi/lichess-bot) and copy some files over.
 
-If you pull [https://github.com/ShailChoksi/lichess-bot](https://github.com/ShailChoksi/lichess-bot) to the same parent directory of lazy_smp, such that your local setup looks like:
+If you pull [https://github.com/ShailChoksi/lichess-bot](https://github.com/ShailChoksi/lichess-bot) to the same parent directory of moonfish, such that your local setup looks like:
 
 ```bash
-$ tree lazy_smp/ lichess-bot/ -L 1
-lazy_smp/
+$ tree moonfish/ lichess-bot/ -L 1
+moonfish/
 ├── LICENSE
 ...
 lichess-bot/
