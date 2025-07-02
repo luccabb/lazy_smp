@@ -98,7 +98,6 @@ This creates a `build` and `dist` folder. The `dist` folder contains the main ex
 | `--quiescence-search-depth` | Max depth of quiescence search | `3` | `1-N` |
 | `--syzygy-path` | Tablebase directory | `None` | Valid path |
 
-
 ## Contributing
 
 We welcome contributions, feel free to open PRs/Issues! Areas of interest:
