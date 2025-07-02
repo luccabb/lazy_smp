@@ -32,8 +32,8 @@ The engine achieves approximately ~2000 Elo when playing against Lichess Stockfi
 ## Installing dependencies
 
 ```bash
-git clone https://github.com/luccabb/lazy_smp.git
-cd lazy_smp
+git clone https://github.com/luccabb/moonfish.git
+cd moonfish
 pip install -r requirements.txt
 ```
 ## Running the Engine
