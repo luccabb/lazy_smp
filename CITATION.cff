@@ -1,0 +1,7 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+title: "Moonfish: A Didactic Python Chess Engine"
+authors:
+  - family-names: Bertoncini
+    given-names: Lucca
+url: "https://github.com/luccabb/lazy_smp"
