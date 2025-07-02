@@ -97,8 +97,6 @@ This creates a `build` and `dist` folder. The `dist` folder contains the main ex
 | `--null-mov-r` | Null move reduction factor | `2` | `1-N` |
 | `--quiescence-search-depth` | Max depth of quiescence search | `3` | `1-N` |
 | `--syzygy-path` | Tablebase directory | `None` | Valid path |
-| `--hash-size` | Transposition table size (MB) | `64` | `1-1024` |
-
 
 ## Contributing
 
@@ -111,6 +109,7 @@ We welcome contributions, feel free to open PRs/Issues! Areas of interest:
 - Different evaluation functions
 - Neural Net integration
 - Performance benchmarking on different hardware
+- Improving caching
 
 ## References
 
