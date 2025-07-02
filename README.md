@@ -40,7 +40,7 @@ pip install -r requirements.txt
 
 ### 1. Running as an [UCI](http://wbec-ridderkerk.nl/html/UCIProtocol.html) Compatible Engine
 
-```bash
+```shell
 # to get available options
 $ python main.py --help
 # starts the engine with default options
